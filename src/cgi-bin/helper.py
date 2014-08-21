@@ -4,9 +4,9 @@ import json
 import urlparse
 
 def something(param):
-    with open("..%sdata%splayers.json" % (os.sep, os.sep)) as f:
+    with open("%s%s..%s..%sdata%splayers.json" % (os.path.dirname(os.path.realpath(__file__)), os.sep, os.sep, os.sep, os.sep)) as f:
         players = json.load(f)
-    output = {"param": param, "players": players}
+    output = {"cwd": os.getcwd(), "filedir": os.path.dirname(os.path.realpath(__file__)), "param": param, "players": players}
     return output
 
 args = urlparse.parse_qs(os.getenv("QUERY_STRING") or "")
