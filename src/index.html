@@ -1,0 +1,35 @@
+<html>
+<head>
+<title>Draft Assistant</title>
+<link type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/ui-lightness/jquery-ui.css" rel="Stylesheet" />
+<link rel="stylesheet" type="text/css" href="http://rack1.citizennet.com/jslibraries/datatables-1.8.1/css/demo_page.css" />
+<link rel="stylesheet" type="text/css" href="http://rack1.citizennet.com/jslibraries/datatables-1.8.1/css/demo_table.css" />
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/jquery-ui.min.js"></script>
+<script type="text/javascript" src="http://rack1.citizennet.com/jslibraries/datatables-1.8.1/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript">
+
+$(document).ready(function(){
+    $("#something").submit(function(){
+        event.preventDefault();
+        $.ajax({
+            url: "cgi-bin/helper.py",
+            data: $("#something").serialize(),
+            success: function(data) {
+            	$("#test").html(JSON.stringify(data));
+            }
+        });
+    });
+});
+</script>
+</head>
+<body>
+<h2>Draft Assistant</h2>
+<b>Do Something</b><br>
+<form id="something">
+    Param: <input name="param" id="param"><br>
+    <input type="submit" value="Load"/>
+</form>
+<div id="test"></div>
+</body>
+</html>
