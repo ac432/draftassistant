@@ -4,32 +4,114 @@
 <link type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/ui-lightness/jquery-ui.css" rel="Stylesheet" />
 <link rel="stylesheet" type="text/css" href="http://rack1.citizennet.com/jslibraries/datatables-1.8.1/css/demo_page.css" />
 <link rel="stylesheet" type="text/css" href="http://rack1.citizennet.com/jslibraries/datatables-1.8.1/css/demo_table.css" />
+<style>
+table {
+    border-collapse: collapse;
+}
+table, td, th {
+    border: 1px solid black;
+    padding: 3px;
+}
+span {
+    color: green;
+    margin: 5px;
+    cursor: pointer;
+}
+span:hover {
+    background: yellow;
+}
+</style>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/jquery-ui.min.js"></script>
 <script type="text/javascript" src="http://rack1.citizennet.com/jslibraries/datatables-1.8.1/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript">
+var draft_state = {};
 
-$(document).ready(function(){
-    $("#something").submit(function(){
+function numbers_dropdown(id, start, end, selected) {
+    var dropdown_html = "";
+    for (var i = start; i <= end; i++) {
+        if (i == selected) {
+            dropdown_html += "<option selected=\"selected\" value=\"" + i + "\">" + i + "</option>";
+        }
+        else {
+            dropdown_html += "<option value=\"" + i + "\">" + i + "</option>";
+        }
+    }
+    $("#" + id).html(dropdown_html);
+}
+
+function initialize() {
+    var draft_table_html = "<tr><th></th>"
+    for (i = 0; i < draft_state["teams"].length; i++) {
+        draft_table_html += "<th>" + draft_state["teams"][i]["name"] + "</th>";
+    }
+    draft_table_html += "</tr>"
+    for (i = 0; i < 15; i++) {
+        draft_table_html += "<tr><td>Round " + (i + 1) + "</td>";
+        for (j = 0; j < draft_state["teams"].length; j++) {
+            var player_name = draft_state["teams"][j]["players"][i];
+            draft_table_html += "<td>" + player_name + "</td>";
+        }
+        draft_table_html += "</tr>"
+    }
+    $("#draft_table").html(draft_table_html);
+    var player_list_html = ""
+    for (i = 0; i < draft_state["remaining_players"].length; i++) {
+        player_list_html += "<tr><td>" + (i + 1) + ". <span onclick=\"select_player(" + i + ")\">" + draft_state["remaining_players"][i]["name"] + 
+            " (" + draft_state["remaining_players"][i]["pos"] + ")</span></td></tr>";
+    }
+    $("#player_list").html(player_list_html);
+}
+
+function select_player(player_id) {
+    $.ajax({
+        url: "cgi-bin/helper.py",
+        type: "POST",
+        data: {"draft_state": JSON.stringify(draft_state), "player_id": player_id}, 
+        success: function(data) {
+            draft_state = data;
+            initialize();
+            $("#test").html(JSON.stringify(data));
+        }
+    });
+}
+
+$(document).ready(function() {
+    numbers_dropdown("num_teams", 4, 14, 10);
+    numbers_dropdown("draft_pos", 1, 10, 1);
+    $("#num_teams").change(function() {
+        numbers_dropdown("draft_pos", 1, parseInt($("#num_teams").val()), parseInt($("#draft_pos").val()));
+    });
+    $("#initialize").submit(function() {
         event.preventDefault();
         $.ajax({
             url: "cgi-bin/helper.py",
-            data: $("#something").serialize(),
+            type: "POST",
+            data: $("#initialize").serialize(),
             success: function(data) {
-            	$("#test").html(JSON.stringify(data));
+                draft_state = data;
+                initialize();
             }
         });
     });
+    $("#test").html("hello");
+    // $("#test1").on("click", "#test", function(){
+    //     $("#test").html("hi");
+    // });
 });
 </script>
 </head>
 <body>
 <h2>Draft Assistant</h2>
-<b>Do Something</b><br>
-<form id="something">
-    Param: <input name="param" id="param"><br>
+<b>Initialize Draft</b><br>
+<form id="initialize">
+    Number of teams: <select name="num_teams" id="num_teams"></select><br>
+    Your draft position: <select name="draft_pos" id="draft_pos"></select><br>
     <input type="submit" value="Load"/>
 </form>
-<div id="test"></div>
+<table id="draft_table"></table><br>
+<table id="player_list"></table>
+<div id="test1">
+<div id="test"></div></div>
 </body>
 </html>
