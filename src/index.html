@@ -6,11 +6,17 @@
 <link rel="stylesheet" type="text/css" href="http://rack1.citizennet.com/jslibraries/datatables-1.8.1/css/demo_table.css" />
 <style>
 table {
-    border-collapse: collapse;
-}
-table, td, th {
-    border: 1px solid black;
+    border: 0px;
+    font-size: small;
+    text-align: left;
     padding: 3px;
+}
+#draft_table td {
+    width: 100px;
+}
+.grouping_table td {
+    padding: 10px;
+    vertical-align: top;
 }
 span {
     color: green;
@@ -40,27 +46,106 @@ function numbers_dropdown(id, start, end, selected) {
     $("#" + id).html(dropdown_html);
 }
 
-function initialize() {
-    var draft_table_html = "<tr><th></th>"
-    for (i = 0; i < draft_state["teams"].length; i++) {
-        draft_table_html += "<th>" + draft_state["teams"][i]["name"] + "</th>";
+function order_team(team_players) {
+    var ordered_team = {"QB": "", "WR": [], "RB": [], "TE": "", "DST": "", "BN": []}
+    for (i = 0; i < team_players.length; i++) {
+        var player_name = team_players[i]["name"] + " (" + team_players[i]["pos"] + ")";
+        if (team_players[i]["pos"] == "QB") {
+            if (ordered_team["QB"] == "") {
+                ordered_team["QB"] = player_name;
+            }
+            else {
+                ordered_team["BN"].push(player_name);
+            }
+        }
+        else if (team_players[i]["pos"] == "WR") {
+            if (ordered_team["WR"].length < 3) {
+                ordered_team["WR"].push(player_name);
+            }
+            else {
+                ordered_team["BN"].push(player_name);
+            }
+        }
+        else if (team_players[i]["pos"] == "RB") {
+            if (ordered_team["RB"].length < 2) {
+                ordered_team["RB"].push(player_name);
+            }
+            else {
+                ordered_team["BN"].push(player_name);
+            }
+        }
+        else if (team_players[i]["pos"] == "TE") {
+            if (ordered_team["TE"] == "") {
+                ordered_team["TE"] = player_name;
+            }
+            else {
+                ordered_team["BN"].push(player_name);
+            }
+        }
+        else if (team_players[i]["pos"] == "DST") {
+            if (ordered_team["DST"] == "") {
+                ordered_team["DST"] = player_name;
+            }
+            else {
+                ordered_team["BN"].push(player_name);
+            }
+        }
     }
-    draft_table_html += "</tr>"
+    return ordered_team;
+}
+
+function initialize() {
+    var player_list_html = "";
+    for (i = 0; i < draft_state["players"].length; i++) {
+        if ("drafted" in draft_state["players"][i] || ($("#filter_player_list").val() != "all" && draft_state["players"][i]["pos"] != $("#filter_player_list").val())) {
+            continue;
+        }
+        player_list_html += "<tr><td>" + (i + 1) + ". <span onclick=\"select_player(" + i + ")\">" + draft_state["players"][i]["name"] + 
+            " (" + draft_state["players"][i]["pos"] + ")</span></td></tr>";
+    }
+    $("#player_list").html(player_list_html);
+    var draft_table_html = "<tr><th></th>";
+    var your_team_index = 0;
+    for (i = 0; i < draft_state["teams"].length; i++) {
+        if (draft_state["teams"][i]["name"] == "Your Team") {
+            your_team_index = i;
+            draft_table_html += "<th style=\"background-color: LightGray;\">Your Team</th>";
+        }
+        else {
+            draft_table_html += "<th>" + draft_state["teams"][i]["name"] + "</th>";
+        }
+    }
+    draft_table_html += "</tr>";
     for (i = 0; i < 15; i++) {
         draft_table_html += "<tr><td>Round " + (i + 1) + "</td>";
         for (j = 0; j < draft_state["teams"].length; j++) {
-            var player_name = draft_state["teams"][j]["players"][i];
-            draft_table_html += "<td>" + player_name + "</td>";
+            if (i == draft_state["curr_round"] && j == draft_state["curr_team"]) {
+                draft_table_html += "<td style=\"background-color: yellow;\">Current Pick</td>";
+            }
+            else {
+                var player_name = i < draft_state["teams"][j]["players"].length ? (draft_state["teams"][j]["players"][i]["name"] + 
+                    " (" + draft_state["teams"][j]["players"][i]["pos"] + ")") : "";
+                draft_table_html += "<td>" + player_name + "</td>";
+            }
         }
-        draft_table_html += "</tr>"
+        draft_table_html += "</tr>";
     }
     $("#draft_table").html(draft_table_html);
-    var player_list_html = ""
-    for (i = 0; i < draft_state["remaining_players"].length; i++) {
-        player_list_html += "<tr><td>" + (i + 1) + ". <span onclick=\"select_player(" + i + ")\">" + draft_state["remaining_players"][i]["name"] + 
-            " (" + draft_state["remaining_players"][i]["pos"] + ")</span></td></tr>";
+    var ordered_team = order_team(draft_state["teams"][your_team_index]["players"]);
+    var your_team_html = "<tr><th>Your Team</th></tr>";
+    your_team_html += "<tr><td>QB</td><td>" + ordered_team["QB"] + "</td></tr>";
+    for (i = 0; i < 3; i++) {
+        your_team_html += "<tr><td>WR</td><td>" + (i < ordered_team["WR"].length ? ordered_team["WR"][i] : "") + "</td></tr>";
     }
-    $("#player_list").html(player_list_html);
+    for (i = 0; i < 2; i++) {
+        your_team_html += "<tr><td>RB</td><td>" + (i < ordered_team["RB"].length ? ordered_team["RB"][i] : "") + "</td></tr>";
+    }
+    your_team_html += "<tr><td>TE</td><td>" + ordered_team["TE"] + "</td></tr>";
+    your_team_html += "<tr><td>DST</td><td>" + ordered_team["DST"] + "</td></tr>";
+    for (i = 0; i < 6; i++) {
+        your_team_html += "<tr><td>BN</td><td>" + (i < ordered_team["BN"].length ? ordered_team["BN"][i] : "") + "</td></tr>";
+    }
+    $("#your_team").html(your_team_html);
 }
 
 function select_player(player_id) {
@@ -71,12 +156,12 @@ function select_player(player_id) {
         success: function(data) {
             draft_state = data;
             initialize();
-            $("#test").html(JSON.stringify(data));
         }
     });
 }
 
 $(document).ready(function() {
+    $("#data").hide()
     numbers_dropdown("num_teams", 4, 14, 10);
     numbers_dropdown("draft_pos", 1, 10, 1);
     $("#num_teams").change(function() {
@@ -91,13 +176,13 @@ $(document).ready(function() {
             success: function(data) {
                 draft_state = data;
                 initialize();
+                $("#data").show()
             }
         });
     });
-    $("#test").html("hello");
-    // $("#test1").on("click", "#test", function(){
-    //     $("#test").html("hi");
-    // });
+    $("#filter_player_list").change(function() {
+        initialize();
+    });
 });
 </script>
 </head>
@@ -109,9 +194,28 @@ $(document).ready(function() {
     Your draft position: <select name="draft_pos" id="draft_pos"></select><br>
     <input type="submit" value="Load"/>
 </form>
-<table id="draft_table"></table><br>
-<table id="player_list"></table>
-<div id="test1">
-<div id="test"></div></div>
+<div id="test"></div>
+<div id="data">
+<table class="grouping_table">
+<tr>
+    <td>
+        Filter players:
+        <select id="filter_player_list">
+            <option value="all">Show all</option>
+            <option value="QB">QB</option>
+            <option value="WR">WR</option>
+            <option value="RB">RB</option>
+            <option value="TE">TE</option>
+            <option value="DST">DST</option>
+        </select>
+        <table class="regular_table" id="player_list"></table>
+    </td>
+    <td>
+        <table class="regular_table" id="draft_table"></table><br>
+        <table class="regular_table" id="your_team"></table>
+    </td>
+</tr>
+</table>
+</div>
 </body>
 </html>
