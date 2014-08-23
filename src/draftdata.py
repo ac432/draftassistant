@@ -14,6 +14,7 @@ class FantasyProsParser:
         if node.tag == "a" and node.get("fp-player-name") is not None:
             self.player_column = 0
             if self.current_player:
+            	self.current_player["id"] = len(self.players)
                 self.players.append(self.current_player)
             self.current_player = {"name": node.get("fp-player-name")}
         if self.player_column is not None and node.tag == "td":

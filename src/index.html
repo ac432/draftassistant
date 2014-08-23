@@ -32,6 +32,11 @@ span:hover {
 <script type="text/javascript" src="http://rack1.citizennet.com/jslibraries/datatables-1.8.1/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript">
 var draft_state = {};
+var teams = {};
+var players = {};
+var curr_round = 0;
+var curr_team = 0;
+var step = 1;
 
 function numbers_dropdown(id, start, end, selected) {
     var dropdown_html = "";
@@ -95,13 +100,13 @@ function order_team(team_players) {
 }
 
 function initialize() {
-    var player_list_html = "";
+    var player_list_html = "<tr><th></th><th>Avg Rank</th><th>ADP</th></tr>";
     for (i = 0; i < draft_state["players"].length; i++) {
         if ("drafted" in draft_state["players"][i] || ($("#filter_player_list").val() != "all" && draft_state["players"][i]["pos"] != $("#filter_player_list").val())) {
             continue;
         }
         player_list_html += "<tr><td>" + (i + 1) + ". <span onclick=\"select_player(" + i + ")\">" + draft_state["players"][i]["name"] + 
-            " (" + draft_state["players"][i]["pos"] + ")</span></td></tr>";
+            " (" + draft_state["players"][i]["pos"] + ")</span></td><td>" +  draft_state["players"][i]["avg_rank"] + "</td><td>" +  draft_state["players"][i]["adp"] + "</td></tr>";
     }
     $("#player_list").html(player_list_html);
     var draft_table_html = "<tr><th></th>";
@@ -149,15 +154,24 @@ function initialize() {
 }
 
 function select_player(player_id) {
-    $.ajax({
-        url: "cgi-bin/helper.py",
-        type: "POST",
-        data: {"draft_state": JSON.stringify(draft_state), "player_id": player_id}, 
-        success: function(data) {
-            draft_state = data;
-            initialize();
-        }
-    });
+    draft_state["players"][player_id]["drafted"] = true;
+    draft_state["teams"][draft_state["curr_team"]]["players"].push(draft_state["players"][player_id]);
+    if (draft_state["curr_team"] + draft_state["step"] >= draft_state["teams"].length) {
+        draft_state["curr_round"] += 1;
+        draft_state["step"] = -1;
+    }
+    else if (draft_state["curr_team"] + draft_state["step"] < 0) {
+        draft_state["curr_round"] += 1;
+        draft_state["step"] = 1;
+    }
+    else {
+        draft_state["curr_team"] += draft_state["step"];
+    }
+    initialize();
+}
+
+function undo_pick() {
+    initialize();
 }
 
 $(document).ready(function() {
@@ -183,6 +197,9 @@ $(document).ready(function() {
     $("#filter_player_list").change(function() {
         initialize();
     });
+    $("#undo_pick").click(function() {
+        undo_pick();
+    });
 });
 </script>
 </head>
@@ -196,21 +213,22 @@ $(document).ready(function() {
 </form>
 <div id="test"></div>
 <div id="data">
+Filter players:
+<select id="filter_player_list">
+    <option value="all">Show all</option>
+    <option value="QB">QB</option>
+    <option value="WR">WR</option>
+    <option value="RB">RB</option>
+    <option value="TE">TE</option>
+    <option value="DST">DST</option>
+</select>
 <table class="grouping_table">
 <tr>
     <td>
-        Filter players:
-        <select id="filter_player_list">
-            <option value="all">Show all</option>
-            <option value="QB">QB</option>
-            <option value="WR">WR</option>
-            <option value="RB">RB</option>
-            <option value="TE">TE</option>
-            <option value="DST">DST</option>
-        </select>
         <table class="regular_table" id="player_list"></table>
     </td>
     <td>
+        <button type="button" id="undo_pick">Undo Pick</button>
         <table class="regular_table" id="draft_table"></table><br>
         <table class="regular_table" id="your_team"></table>
     </td>
