@@ -21,9 +21,9 @@ class FantasyProsParser:
             if self.player_column == 0:
                 self.current_player["pos"] = "".join([char for char in node.text if not char.isdigit()])
             elif self.player_column == 3:
-                self.current_player["avg_rank"] = node.text
+                self.current_player["avg_rank"] = float(node.text) if node.text else None
             elif self.player_column == 5:
-                self.current_player["adp"] = node.text
+                self.current_player["adp"] = float(node.text) if node.text else None
             self.player_column += 1
         for child_node in node:
             self.process_html(child_node)
