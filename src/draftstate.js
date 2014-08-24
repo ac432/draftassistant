@@ -4,7 +4,6 @@ var teams = {};
 var curr_round = 0;
 var curr_team = 0;
 var step = 1;
-var suggested_player = 0;
 
 function numbers_dropdown(id, start, end, selected) {
     var dropdown_html = "";
@@ -144,9 +143,9 @@ function evaluate_state(team) {
     }
     score += (ordered_team["TE"] ? ordered_team["TE"]["avg_rank"] : 0)
     score += (ordered_team["DST"] ? ordered_team["DST"]["avg_rank"] : 0)
-    score += (ordered_team["K"] ? ordered_team["K"]["avg_rank"] * 3.0 : 0)
+    score += (ordered_team["K"] ? ordered_team["K"]["avg_rank"] * 5.0 : 0)
     for (var i = 0; i < ordered_team["BN"].length; i++) {
-        score += ordered_team["BN"][i]["avg_rank"] * 2.0;
+        score += ordered_team["BN"][i]["avg_rank"] * 3.0;
     }
     score /= teams[team]["players"].length;
     return score;
@@ -252,7 +251,7 @@ function recurse_states(depth, saved_curr_team) {
         //$("#test").html(JSON.stringify(teams[saved_curr_team]["players"]));
         //console.log("undo last pick " + curr_team + " in " + curr_round);
         undo_pick(true);
-        return score;
+        return {"score": score, "log": []};
     }
     else {
         if (curr_round >= 14) {
@@ -267,38 +266,41 @@ function recurse_states(depth, saved_curr_team) {
         // console.log("curr_team: " + curr_team);
         var possible_picks = get_possible_picks();
         var best_score = 1000000;
-        var best_player = 0;
+        var best_pick = null;
         for (var i = 0; i < possible_picks.length; i++) {
             //console.log(possible_picks);
             if (possible_picks[i] != null) {
                 //console.log("pick " + possible_picks[i] + " for " + curr_team + " in " + curr_round);
                 select_player(possible_picks[i], true);
-                var score = recurse_states(depth - 1, saved_curr_team);
+                var pick = recurse_states(depth - 1, saved_curr_team);
                 if (depth > 1) {
                     //console.log("undo last pick: " + curr_team + " in " + curr_round);
                     undo_pick(true);
                 }
                 //console.log("Score: " + score);
-                if (score < best_score) {
-                    best_score = score;
-                    best_player = possible_picks[i];
+                if (best_pick == null || pick["score"] < best_pick["score"]) {
+                    pick["log"].splice(0, 0, possible_picks[i]);
+                    best_pick = pick;
                 }
             }
         }
-        suggested_player = best_player;
         //console.log("best player " + best_player)
         //console.log("best score " + best_score)
         for (var i = 0; i < num_teams_picked; i++) {
             //console.log("un-autodrafting: " + curr_team + " in " + curr_round);
             undo_pick(true);
         }
-        return best_score;
+        return best_pick;
     }
 }
 
 function load_suggestions() {
-    recurse_states(2, curr_team);
-    console.log("suggested player " + players[suggested_player]["name"]);
+    var best_pick = recurse_states(2, curr_team);
+    log = "score: " + best_pick["score"];
+    for (var i = 0; i < best_pick["log"].length; i++) {
+        log += ", pick: " + players[best_pick["log"][i]]["name"];
+    }
+    console.log(log);
 }
 
 function select_player(player_id, simulation) {
