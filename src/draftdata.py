@@ -20,6 +20,7 @@ class FantasyProsParser:
         if self.player_column is not None and node.tag == "td":
             if self.player_column == 0:
                 self.current_player["pos"] = "".join([char for char in node.text if not char.isdigit()])
+                self.current_player["name_pos"] = "%s (%s)" % (self.current_player["name"], self.current_player["pos"])
             elif self.player_column == 3:
                 self.current_player["avg_rank"] = float(node.text) if node.text else None
             elif self.player_column == 5:
