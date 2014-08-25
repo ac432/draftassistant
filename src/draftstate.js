@@ -144,27 +144,98 @@ function initialize() {
     }
 }
 
+var evaluation_params = {};
+
 function evaluate_state(team) {
+    var num_qb_bn = 0;
+    var num_wr_bn = 0;
+    var num_rb_bn = 0;
+    var num_te_bn = 0;
+    var num_dst_bn = 0;
+    var final_score = 0;
     var score = 0;
-    // for (var i = 0; i < teams[team]["players"].length; i++) {
-    //     score += teams[team]["players"][i]["avg_rank"];
-    // }
     var ordered_team = order_team(teams[team]["players"]);
-    score += (ordered_team["QB"] ? ordered_team["QB"]["avg_rank"] : 0)
-    for (var i = 0; i < ordered_team["WR"].length; i++) {
-        score += ordered_team["WR"][i]["avg_rank"];
+    for (var pos in ordered_team) {
+        if (pos == "QB" || pos == "TE" || pos == "DST" || pos == "K") {
+            if (ordered_team[pos] != null) {
+                var score = 0;
+                if (ordered_team[pos]["adp"] != null) {
+                    score = (ordered_team[pos]["avg_rank"] + ordered_team[pos]["adp"]) / 2;
+                }
+                else {
+                    score = ordered_team[pos]["avg_rank"];
+                }
+                if (pos == "K") {
+                    if (teams[team]["players"].length == 14) {
+                        score *= 3.0;
+                    }
+                    else if (teams[team]["players"].length == 15) {
+                        score *= 0.8;
+                    }
+                    else {
+                        score *= 5.0;
+                    }
+                }
+                final_score += score;
+            }
+        }
+        else if (pos == "WR" || pos == "RB" || pos == "BN") {
+            for (var i = 0; i < ordered_team[pos].length; i++) {
+                var score = 0;
+                if (ordered_team[pos][i]["adp"] != null) {
+                    score = (ordered_team[pos][i]["avg_rank"] + ordered_team[pos][i]["adp"]) / 2;
+                }
+                else {
+                    score = ordered_team[pos][i]["avg_rank"];
+                }
+                if (pos == "BN") {
+                    score *= 4.0;
+                    if (ordered_team[pos][i]["pos"] == "QB") {
+                        num_qb_bn += 1;
+                    }
+                    else if (ordered_team[pos][i]["pos"] == "WR") {
+                        num_wr_bn += 1;
+                    }
+                    else if (ordered_team[pos][i]["pos"] == "RB") {
+                        num_rb_bn += 1;
+                    }
+                    else if (ordered_team[pos][i]["pos"] == "TE") {
+                        num_te_bn += 1;
+                    }
+                    else if (ordered_team[pos][i]["pos"] == "DST") {
+                        num_dst_bn += 1;
+                    }
+                }
+                final_score += score;
+            }
+        }
     }
-    for (var i = 0; i < ordered_team["RB"].length; i++) {
-        score += ordered_team["RB"][i]["avg_rank"];
+    final_score /= teams[team]["players"].length;
+    if (num_qb_bn > 2) {
+        final_score *= 1.2;
     }
-    score += (ordered_team["TE"] ? ordered_team["TE"]["avg_rank"] : 0)
-    score += (ordered_team["DST"] ? ordered_team["DST"]["avg_rank"] : 0)
-    score += (ordered_team["K"] ? ordered_team["K"]["avg_rank"] * 5.0 : 0)
-    for (var i = 0; i < ordered_team["BN"].length; i++) {
-        score += ordered_team["BN"][i]["avg_rank"] * 3.0;
+    else if (num_qb_bn > 1) {
+        final_score *= 1.1;
     }
-    score /= teams[team]["players"].length;
-    return score;
+    if (Math.abs(num_wr_bn - num_rb_bn) > 1) {
+        final_score *= 1.2;
+    }
+    else if (num_rb_bn - num_wr_bn > 0) {
+        final_score *= 1.1;
+    }
+    if (num_te_bn > 2) {
+        final_score *= 1.2;
+    }
+    else if (num_te_bn > 1) {
+        final_score *= 1.1;
+    }
+    if (num_dst_bn > 2) {
+        final_score *= 1.2;
+    }
+    else if (num_dst_bn > 1) {
+        final_score *= 1.1;
+    }
+    return final_score;
 }
 
 function get_possible_picks() {
@@ -270,8 +341,8 @@ function recurse_states(depth, saved_curr_team) {
             }
         }
         best_picks = best_picks.sort(function(a,b){return a["score"] - b["score"]});
-        if (best_picks.length > 3) {
-            best_picks = best_picks.slice(0, 3);
+        if (best_picks.length > 5) {
+            best_picks = best_picks.slice(0, 5);
         }
         //console.log("best player " + best_player)
         //console.log("best score " + best_score)
@@ -285,7 +356,7 @@ function recurse_states(depth, saved_curr_team) {
 
 function load_suggestions() {
     var best_picks = recurse_states(rounds_lookahead, curr_team);
-    var suggestions_html = "<tr><th>Pick Score</th><th>Suggested Pick</th>";
+    var suggestions_html = "<tr><th>Estimated Team Rank</th><th>Suggested Pick</th>";
     for (var i = 0; i < best_picks[0]["log"].length - 1; i++) {
         suggestions_html += "<th>Estimated Pick " + (i + 1) + "</th>";
     }
