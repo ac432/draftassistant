@@ -98,11 +98,12 @@ function initialize() {
         draft_table_html += "<tr><td>Round " + (i + 1) + "</td>";
         for (var j = 0; j < teams.length; j++) {
             if (i == curr_round && j == curr_team) {
-                draft_table_html += "<td style=\"background-color: yellow;\">Current Pick</td>";
+                draft_table_html += "<td>Current Pick</td>";
             }
             else {
                 var player_name = i < teams[j]["players"].length ? teams[j]["players"][i]["name_pos"] : "";
-                draft_table_html += "<td>" + player_name + "</td>";
+                var class_html = i < teams[j]["players"].length ? " class=\"" + teams[j]["players"][i]["pos"] + "\"" : "";
+                draft_table_html += "<td" + class_html + ">" + player_name + "</td>";
             }
         }
         draft_table_html += "</tr>";
@@ -223,18 +224,18 @@ function recurse_states(depth, saved_curr_team) {
         var score = evaluate_state(saved_curr_team);
         //$("#test").html(JSON.stringify(teams[saved_curr_team]["players"]));
         //console.log("undo last pick " + curr_team + " in " + curr_round);
-        undo_pick(true);
         return [{"score": score, "log": []}];
     }
     else {
-        if (curr_round >= 14) {
-            depth = 1;
-        }
         var num_teams_picked = 0;
         if (curr_team != saved_curr_team) {
             num_teams_picked = pick_other_teams(saved_curr_team);
         }
+        if (curr_round >= 14) {
+            depth = 1;
+        }
         // console.log("Depth: " + depth);
+        // console.log("curr_round: " + curr_round);
         // console.log("saved_curr_team: " + saved_curr_team);
         // console.log("curr_team: " + curr_team);
         var possible_picks = get_possible_picks();
@@ -249,10 +250,7 @@ function recurse_states(depth, saved_curr_team) {
                 for (var j = 0; j < picks.length; j++) {
                     picks[j]["log"].splice(0, 0, possible_picks[i]);
                 }
-                if (depth > 1) {
-                    //console.log("undo last pick: " + curr_team + " in " + curr_round);
-                    undo_pick(true);
-                }
+                undo_pick(true);
                 //console.log("Score: " + score);
                 best_picks = best_picks.concat(picks);
             }
@@ -274,7 +272,7 @@ function recurse_states(depth, saved_curr_team) {
 function load_suggestions() {
     var best_picks = recurse_states(rounds_lookahead, curr_team);
     var suggestions_html = "<tr><th>Pick Score</th><th>Suggested Pick</th>";
-    for (var i = 0; i < rounds_lookahead - 1; i++) {
+    for (var i = 0; i < best_picks[0]["log"].length - 1; i++) {
         suggestions_html += "<th>Estimated Pick " + (i + 1) + "</th>";
     }
     suggestions_html += "</tr>";
@@ -283,7 +281,7 @@ function load_suggestions() {
         suggestions_html += "<td>" + best_picks[i]["score"].toFixed(2) + "</td>";
         suggestions_html += "<td><span onclick=\"select_player(" + best_picks[i]["log"][0] + ", false)\">" + 
             players[best_picks[i]["log"][0]]["name_pos"] + "</span></td>";
-        for (var j = 0; j < rounds_lookahead - 1; j++) {
+        for (var j = 0; j < best_picks[i]["log"].length - 1; j++) {
             suggestions_html += "<td>" + players[best_picks[i]["log"][j + 1]]["name_pos"] + "</td>";
         }
         suggestions_html += "</tr>";
