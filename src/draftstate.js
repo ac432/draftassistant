@@ -75,13 +75,27 @@ function order_team(team_players) {
 }
 
 function initialize() {
+    console.log($("#show_drafted_players").prop("checked"));
     var player_list_html = "<tr><th></th><th>Avg Rank</th><th>ADP</th></tr>";
     for (var i = 0; i < players.length; i++) {
-        if ("is_drafted" in players[i] || ($("#filter_player_list").val() != "all" && players[i]["pos"] != $("#filter_player_list").val())) {
-            continue;
+        var show_player = false;
+        if (!("is_drafted" in players[i]) || $("#show_drafted_players").prop("checked")) {
+            show_player = true;
         }
-        player_list_html += "<tr><td>" + (i + 1) + ". <span onclick=\"select_player(" + i + ", false)\">" + players[i]["name_pos"] + 
-            "</span></td><td>" +  players[i]["avg_rank"] + "</td><td>" +  players[i]["adp"] + "</td></tr>";
+        var pos_check = false;
+        if ($("#filter_player_list").val() == "all" || players[i]["pos"] == $("#filter_player_list").val()) {
+            pos_check = true;
+        }
+        if (show_player && pos_check) {
+            if ("is_drafted" in players[i]) {
+                player_list_html += "<tr><td>" + (i + 1) + ". <span class=\"drafted_player\">" + players[i]["name_pos"] + 
+                    "</span></td><td>" +  players[i]["avg_rank"] + "</td><td>" +  players[i]["adp"] + "</td></tr>";
+            }
+            else {
+                player_list_html += "<tr><td>" + (i + 1) + ". <span class=\"undrafted_player\" onclick=\"select_player(" + i + ", false)\">" + players[i]["name_pos"] + 
+                    "</span></td><td>" +  players[i]["avg_rank"] + "</td><td>" +  players[i]["adp"] + "</td></tr>";
+            }
+        }
     }
     $("#player_list").html(player_list_html);
     var draft_table_html = "<tr><th></th>";
@@ -279,7 +293,7 @@ function load_suggestions() {
     for (var i = 0; i < best_picks.length; i++) {
         suggestions_html += "<tr>";
         suggestions_html += "<td>" + best_picks[i]["score"].toFixed(2) + "</td>";
-        suggestions_html += "<td><span onclick=\"select_player(" + best_picks[i]["log"][0] + ", false)\">" + 
+        suggestions_html += "<td><span class=\"undrafted_player\" onclick=\"select_player(" + best_picks[i]["log"][0] + ", false)\">" + 
             players[best_picks[i]["log"][0]]["name_pos"] + "</span></td>";
         for (var j = 0; j < best_picks[i]["log"].length - 1; j++) {
             suggestions_html += "<td>" + players[best_picks[i]["log"][j + 1]]["name_pos"] + "</td>";
@@ -358,6 +372,9 @@ $(document).ready(function() {
         });
     });
     $("#filter_player_list").change(function() {
+        initialize();
+    });
+    $("#show_drafted_players").click(function() {
         initialize();
     });
     $("#undo_pick").click(function() {

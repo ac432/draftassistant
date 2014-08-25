@@ -20,13 +20,16 @@ td {
     padding: 10px;
     vertical-align: top;
 }
-span {
+.drafted_player {
+    text-decoration: line-through;
+}
+.undrafted_player {
     color: green;
     margin: 5px;
     cursor: pointer;
 }
-span:hover {
-    background: yellow;
+.undrafted_player:hover {
+    background-color: yellow;
 }
 .QB {
     background-color: LightGreen;
@@ -41,7 +44,7 @@ span:hover {
     background-color: Salmon;
 }
 .DST {
-    background-color: LightGray;
+    background-color: MediumPurple;
 }
 .K {
     background-color: BurlyWood;
@@ -71,27 +74,26 @@ span:hover {
             </select><br>
             <input type="submit" value="Load"/>
         </form>
-        <div class="show_on_load">
-        Filter players:
-        <select id="filter_player_list">
-            <option value="all">Show all</option>
+    </td>
+    <td>
+        <table class="regular_table" id="suggestions"></table>
+    </td>
+</tr>
+<table class="grouping_table">
+<tr>
+    <td>
+        <span class="show_on_load">Filter by position:</span>
+        <select class="show_on_load" id="filter_player_list">
+            <option value="all">Show All Positions</option>
             <option value="QB">QB</option>
             <option value="WR">WR</option>
             <option value="RB">RB</option>
             <option value="TE">TE</option>
             <option value="DST">DST</option>
             <option value="K">K</option>
-        </select>
-        </div>
-    </td>
-    <td>
-        <table class="regular_table" id="suggestions"></table>
-    </td>
-</tr>
-<div class="show_on_load">
-<table class="grouping_table">
-<tr>
-    <td>
+        </select><br>
+        <input type="checkbox" class="show_on_load" id="show_drafted_players" value="true"></input>
+        <span class="show_on_load">Show Drafted Players</span>
         <table class="regular_table" id="player_list"></table>
     </td>
     <td>
@@ -101,6 +103,5 @@ span:hover {
     </td>
 </tr>
 </table>
-</div>
 </body>
 </html>
