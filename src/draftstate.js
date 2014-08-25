@@ -224,7 +224,7 @@ function recurse_states(depth, saved_curr_team) {
         //$("#test").html(JSON.stringify(teams[saved_curr_team]["players"]));
         //console.log("undo last pick " + curr_team + " in " + curr_round);
         undo_pick(true);
-        return {"score": score, "log": []};
+        return [{"score": score, "log": []}];
     }
     else {
         if (curr_round >= 14) {
@@ -239,23 +239,27 @@ function recurse_states(depth, saved_curr_team) {
         // console.log("curr_team: " + curr_team);
         var possible_picks = get_possible_picks();
         var best_score = 1000000;
-        var best_pick = null;
+        var best_picks = [];
         for (var i = 0; i < possible_picks.length; i++) {
             //console.log(possible_picks);
             if (possible_picks[i] != null) {
                 //console.log("pick " + possible_picks[i] + " for " + curr_team + " in " + curr_round);
                 select_player(possible_picks[i], true);
-                var pick = recurse_states(depth - 1, saved_curr_team);
+                var picks = recurse_states(depth - 1, saved_curr_team);
+                for (var j = 0; j < picks.length; j++) {
+                    picks[j]["log"].splice(0, 0, possible_picks[i]);
+                }
                 if (depth > 1) {
                     //console.log("undo last pick: " + curr_team + " in " + curr_round);
                     undo_pick(true);
                 }
                 //console.log("Score: " + score);
-                if (best_pick == null || pick["score"] < best_pick["score"]) {
-                    pick["log"].splice(0, 0, possible_picks[i]);
-                    best_pick = pick;
-                }
+                best_picks = best_picks.concat(picks);
             }
+        }
+        best_picks = best_picks.sort(function(a,b){return a["score"] - b["score"]});
+        if (best_picks.length > 3) {
+            best_picks = best_picks.slice(0, 3);
         }
         //console.log("best player " + best_player)
         //console.log("best score " + best_score)
@@ -263,24 +267,27 @@ function recurse_states(depth, saved_curr_team) {
             //console.log("un-autodrafting: " + curr_team + " in " + curr_round);
             undo_pick(true);
         }
-        return best_pick;
+        return best_picks;
     }
 }
 
 function load_suggestions() {
-    var best_pick = recurse_states(rounds_lookahead, curr_team);
+    var best_picks = recurse_states(rounds_lookahead, curr_team);
     var suggestions_html = "<tr><th>Pick Score</th><th>Suggested Pick</th>";
     for (var i = 0; i < rounds_lookahead - 1; i++) {
         suggestions_html += "<th>Estimated Pick " + (i + 1) + "</th>";
     }
-    suggestions_html += "</tr><tr>";
-    suggestions_html += "<td>" + best_pick["score"].toFixed(2) + "</td>";
-    suggestions_html += "<td><span onclick=\"select_player(" + best_pick["log"][0] + ", false)\">" + 
-        players[best_pick["log"][0]]["name_pos"] + "</span></td>";
-    for (var i = 0; i < rounds_lookahead - 1; i++) {
-        suggestions_html += "<td>" + players[best_pick["log"][i + 1]]["name_pos"] + "</td>";
-    }
     suggestions_html += "</tr>";
+    for (var i = 0; i < best_picks.length; i++) {
+        suggestions_html += "<tr>";
+        suggestions_html += "<td>" + best_picks[i]["score"].toFixed(2) + "</td>";
+        suggestions_html += "<td><span onclick=\"select_player(" + best_picks[i]["log"][0] + ", false)\">" + 
+            players[best_picks[i]["log"][0]]["name_pos"] + "</span></td>";
+        for (var j = 0; j < rounds_lookahead - 1; j++) {
+            suggestions_html += "<td>" + players[best_picks[i]["log"][j + 1]]["name_pos"] + "</td>";
+        }
+        suggestions_html += "</tr>";
+    }
     $("#suggestions").html(suggestions_html);
 }
 
