@@ -5,6 +5,7 @@ var curr_round = 0;
 var curr_team = 0;
 var step = 1;
 var rounds_lookahead = 1;
+var best_pick_id = 0;
 
 function numbers_dropdown(id, start, end, selected) {
     var dropdown_html = "";
@@ -75,7 +76,6 @@ function order_team(team_players) {
 }
 
 function initialize() {
-    console.log($("#show_drafted_players").prop("checked"));
     var player_list_html = "<tr><th></th><th>Avg Rank</th><th>ADP</th></tr>";
     for (var i = 0; i < players.length; i++) {
         var show_player = false;
@@ -355,6 +355,7 @@ function recurse_states(depth, saved_curr_team) {
 function load_suggestions() {
     var best_picks = recurse_states(rounds_lookahead, curr_team);
     var suggestions_html = "<tr><th>Estimated Team Rank</th><th>Suggested Pick</th>";
+    best_pick_id = best_picks[0]["log"][0];
     for (var i = 0; i < best_picks[0]["log"].length - 1; i++) {
         suggestions_html += "<th>Estimated Pick " + (i + 1) + "</th>";
     }
@@ -414,6 +415,14 @@ function undo_pick(simulation) {
     }
 }
 
+function auto_draft() {
+    for (var i = 0; i < 15; i++) {
+        for (var j = 0; j < teams.length; j++) {
+            setTimeout(function(){select_player(best_pick_id, false)}, 500);
+        }
+    }
+}
+
 $(document).ready(function() {
     $(".show_on_load").hide()
     numbers_dropdown("num_teams", 4, 14, 10);
@@ -444,11 +453,15 @@ $(document).ready(function() {
     });
     $("#rounds_lookahead").change(function() {
         rounds_lookahead = parseInt($("#rounds_lookahead").val());
+        initialize();
     });
     $("#show_drafted_players").click(function() {
         initialize();
     });
     $("#undo_pick").click(function() {
         undo_pick(false);
+    });
+    $("#auto_draft").click(function() {
+        auto_draft();
     });
 });
