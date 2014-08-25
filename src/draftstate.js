@@ -171,7 +171,7 @@ function evaluate_state(team) {
                         score *= 0.8;
                     }
                     else {
-                        score *= 5.0;
+                        score *= 7.0;
                     }
                 }
                 final_score += score;
@@ -209,10 +209,10 @@ function evaluate_state(team) {
         }
     }
     final_score /= teams[team]["players"].length;
-    if (num_qb_bn > 2) {
-        final_score *= 1.2;
+    if (num_qb_bn > 1) {
+        final_score *= 2.0;
     }
-    else if (num_qb_bn > 1) {
+    else if (num_qb_bn > 0) {
         final_score *= 1.1;
     }
     if (Math.abs(num_wr_bn - num_rb_bn) > 1) {
@@ -221,17 +221,17 @@ function evaluate_state(team) {
     else if (num_rb_bn - num_wr_bn > 0) {
         final_score *= 1.1;
     }
-    if (num_te_bn > 2) {
+    if (num_te_bn > 1) {
+        final_score *= 2.0;
+    }
+    else if (num_te_bn > 0) {
+        final_score *= 1.05;
+    }
+    if (num_dst_bn > 1) {
+        final_score *= 2.0;
+    }
+    else if (num_dst_bn > 0) {
         final_score *= 1.2;
-    }
-    else if (num_te_bn > 1) {
-        final_score *= 1.1;
-    }
-    if (num_dst_bn > 2) {
-        final_score *= 1.2;
-    }
-    else if (num_dst_bn > 1) {
-        final_score *= 1.1;
     }
     return final_score;
 }
