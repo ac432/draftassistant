@@ -64,16 +64,16 @@ td {
         <form id="initialize">
             Number of teams: <select name="num_teams" id="num_teams"></select><br>
             Your draft position: <select name="draft_pos" id="draft_pos"></select><br>
-            Number of rounds to look ahead for pick suggestions:
-            <select id="rounds_lookahead">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-            </select><br>
             <input type="submit" value="Load"/>
         </form>
     </td>
     <td>
+        <span class="show_on_load">Number of rounds to look ahead for pick suggestions:</span>
+        <select class="show_on_load" id="rounds_lookahead">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+        </select><br>
         <table class="regular_table" id="suggestions"></table>
     </td>
 </tr>

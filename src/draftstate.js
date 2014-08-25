@@ -144,8 +144,6 @@ function initialize() {
     }
 }
 
-var evaluation_params = {};
-
 function evaluate_state(team) {
     var num_qb_bn = 0;
     var num_wr_bn = 0;
@@ -436,7 +434,6 @@ $(document).ready(function() {
                 curr_round = 0;
                 curr_team = 0;
                 step = 1;
-                rounds_lookahead = parseInt($("#rounds_lookahead").val());
                 initialize();
                 $(".show_on_load").show()
             }
@@ -444,6 +441,9 @@ $(document).ready(function() {
     });
     $("#filter_player_list").change(function() {
         initialize();
+    });
+    $("#rounds_lookahead").change(function() {
+        rounds_lookahead = parseInt($("#rounds_lookahead").val());
     });
     $("#show_drafted_players").click(function() {
         initialize();
