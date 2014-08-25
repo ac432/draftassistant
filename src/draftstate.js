@@ -425,14 +425,14 @@ function auto_draft() {
     }
 }
 
-$(document).ready(function() {
+$(document).ready(function(){
     $(".show_on_load").hide()
     numbers_dropdown("num_teams", 4, 14, 10);
     numbers_dropdown("draft_pos", 1, 10, 1);
-    $("#num_teams").change(function() {
+    $("#num_teams").change(function(){
         numbers_dropdown("draft_pos", 1, parseInt($("#num_teams").val()), parseInt($("#draft_pos").val()));
     });
-    $("#initialize").submit(function(event) {
+    $("#initialize").submit(function(event){
         event.preventDefault();
         $.ajax({
             url: "cgi-bin/helper.py",
@@ -450,20 +450,35 @@ $(document).ready(function() {
             }
         });
     });
-    $("#filter_player_list").change(function() {
+    $("#filter_player_list").change(function(){
         initialize();
     });
-    $("#rounds_lookahead").change(function() {
+    $("#rounds_lookahead").change(function(){
         rounds_lookahead = parseInt($("#rounds_lookahead").val());
         initialize();
     });
-    $("#show_drafted_players").click(function() {
+    $("#show_drafted_players").click(function(){
         initialize();
     });
-    $("#undo_pick").click(function() {
+    $("#undo_pick").click(function(){
         undo_pick(false);
     });
-    $("#auto_draft").click(function() {
-        auto_draft();
+    $("#auto_draft").click(function(){
+        $("#auto_draft_confirm").html("Do you really want to auto draft the rest of the picks?");
+        $("#auto_draft_confirm").dialog('open');
+    });
+    $("#auto_draft_confirm").dialog({
+        resizable: false,
+        modal: true,
+        autoOpen: false,
+        buttons: {
+            'Confirm': function(){
+                $(this).dialog('close');
+                auto_draft();
+            },
+            Cancel: function(){
+                $(this).dialog('close');
+            }
+        }
     });
 });
