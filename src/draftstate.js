@@ -124,21 +124,23 @@ function initialize() {
     }
     $("#draft_table").html(draft_table_html);
     var ordered_team = order_team(teams[your_team_index]["players"]);
-    var your_team_html = "<tr><th>Your Team</th></tr>";
-    your_team_html += "<tr><td>QB</td><td>" + (ordered_team["QB"] ? ordered_team["QB"]["name_pos"] : "") + "</td></tr>";
+    var your_team1_html = "<tr><th>Your Team</th></tr>";
+    your_team1_html += "<tr><td>QB</td><td>" + (ordered_team["QB"] ? ordered_team["QB"]["name_pos"] : "") + "</td></tr>";
     for (var i = 0; i < 3; i++) {
-        your_team_html += "<tr><td>WR</td><td>" + (i < ordered_team["WR"].length ? ordered_team["WR"][i]["name_pos"] : "") + "</td></tr>";
+        your_team1_html += "<tr><td>WR</td><td>" + (i < ordered_team["WR"].length ? ordered_team["WR"][i]["name_pos"] : "") + "</td></tr>";
     }
     for (var i = 0; i < 2; i++) {
-        your_team_html += "<tr><td>RB</td><td>" + (i < ordered_team["RB"].length ? ordered_team["RB"][i]["name_pos"] : "") + "</td></tr>";
+        your_team1_html += "<tr><td>RB</td><td>" + (i < ordered_team["RB"].length ? ordered_team["RB"][i]["name_pos"] : "") + "</td></tr>";
     }
-    your_team_html += "<tr><td>TE</td><td>" + (ordered_team["TE"] ? ordered_team["TE"]["name_pos"] : "") + "</td></tr>";
-    your_team_html += "<tr><td>DST</td><td>" + (ordered_team["DST"] ? ordered_team["DST"]["name_pos"] : "") + "</td></tr>";
-    your_team_html += "<tr><td>K</td><td>" + (ordered_team["K"] ? ordered_team["K"]["name_pos"] : "") + "</td></tr>";
+    your_team1_html += "<tr><td>TE</td><td>" + (ordered_team["TE"] ? ordered_team["TE"]["name_pos"] : "") + "</td></tr>";
+    your_team1_html += "<tr><td>DST</td><td>" + (ordered_team["DST"] ? ordered_team["DST"]["name_pos"] : "") + "</td></tr>";
+    $("#your_team1").html(your_team1_html);
+    var your_team2_html = "<tr><th>&nbsp;</th></tr>";
+    your_team2_html += "<tr><td>K</td><td>" + (ordered_team["K"] ? ordered_team["K"]["name_pos"] : "") + "</td></tr>";
     for (var i = 0; i < 6; i++) {
-        your_team_html += "<tr><td>BN</td><td>" + (i < ordered_team["BN"].length ? ordered_team["BN"][i]["name_pos"] : "") + "</td></tr>";
+        your_team2_html += "<tr><td>BN</td><td>" + (i < ordered_team["BN"].length ? ordered_team["BN"][i]["name_pos"] : "") + "</td></tr>";
     }
-    $("#your_team").html(your_team_html);
+    $("#your_team2").html(your_team2_html);
     if (curr_round < 15) {
         load_suggestions();
     }
@@ -339,8 +341,8 @@ function recurse_states(depth, saved_curr_team) {
             }
         }
         best_picks = best_picks.sort(function(a,b){return a["score"] - b["score"]});
-        if (best_picks.length > 5) {
-            best_picks = best_picks.slice(0, 5);
+        if (best_picks.length > 6) {
+            best_picks = best_picks.slice(0, 6);
         }
         //console.log("best player " + best_player)
         //console.log("best score " + best_score)
