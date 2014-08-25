@@ -4,6 +4,7 @@ var teams = {};
 var curr_round = 0;
 var curr_team = 0;
 var step = 1;
+var rounds_lookahead = 1;
 
 function numbers_dropdown(id, start, end, selected) {
     var dropdown_html = "";
@@ -151,33 +152,6 @@ function evaluate_state(team) {
     return score;
 }
 
-function auto_draft(saved_curr_team) {
-    var num_auto_draft = 0;
-    while (curr_team != saved_curr_team) {
-        var player_id = null;
-        var ordered_team = order_team(teams[curr_team]["players"]);
-        for (var i = 0; i < players.length; i++) {
-            if ("is_drafted" in players[i]) {
-                continue;
-            }
-            if (teams[curr_team]["players"].length >= 9 || 
-                    (players[i]["pos"] == "QB" && ordered_team["QB"] == null) || 
-                    (players[i]["pos"] == "WR" && ordered_team["WR"].length < 3) || 
-                    (players[i]["pos"] == "RB" && ordered_team["RB"] .length < 2) || 
-                    (players[i]["pos"] == "TE" && ordered_team["TE"] == null) || 
-                    (players[i]["pos"] == "DST" && ordered_team["DST"] == null) || 
-                    (players[i]["pos"] == "K" && ordered_team["K"] == null)) {
-                player_id = i;
-                break
-            }
-        }
-        //console.log("autodraft " + player_id + " for " + curr_team + " in " + curr_round);
-        select_player(player_id, true);
-        num_auto_draft += 1;
-    }
-    return num_auto_draft;
-}
-
 function get_possible_picks() {
     var top_qb_id = null;
     var top_wr_id = null;
@@ -218,7 +192,6 @@ function pick_other_teams(saved_curr_team) {
     var num_teams_picked = 0;
     while (curr_team != saved_curr_team) {
         var possible_picks = get_possible_picks();
-        //console.log("auto draft");
         //console.log(possible_picks);
         var best_score = 1000000;
         var best_player = 0;
@@ -295,12 +268,20 @@ function recurse_states(depth, saved_curr_team) {
 }
 
 function load_suggestions() {
-    var best_pick = recurse_states(2, curr_team);
-    log = "score: " + best_pick["score"];
-    for (var i = 0; i < best_pick["log"].length; i++) {
-        log += ", pick: " + players[best_pick["log"][i]]["name"];
+    var best_pick = recurse_states(rounds_lookahead, curr_team);
+    var suggestions_html = "<tr><th>Pick Score</th><th>Suggested Pick</th>";
+    for (var i = 0; i < rounds_lookahead - 1; i++) {
+        suggestions_html += "<th>Estimated Pick " + (i + 1) + "</th>";
     }
-    console.log(log);
+    suggestions_html += "</tr><tr>";
+    suggestions_html += "<td>" + best_pick["score"].toFixed(2) + "</td>";
+    suggestions_html += "<td><span onclick=\"select_player(" + best_pick["log"][0] + ", false)\">" + 
+        players[best_pick["log"][0]]["name_pos"] + "</span></td>";
+    for (var i = 0; i < rounds_lookahead - 1; i++) {
+        suggestions_html += "<td>" + players[best_pick["log"][i + 1]]["name_pos"] + "</td>";
+    }
+    suggestions_html += "</tr>";
+    $("#suggestions").html(suggestions_html);
 }
 
 function select_player(player_id, simulation) {
@@ -346,7 +327,7 @@ function undo_pick(simulation) {
 }
 
 $(document).ready(function() {
-    $("#data").hide()
+    $(".show_on_load").hide()
     numbers_dropdown("num_teams", 4, 14, 10);
     numbers_dropdown("draft_pos", 1, 10, 1);
     $("#num_teams").change(function() {
@@ -359,14 +340,15 @@ $(document).ready(function() {
             type: "POST",
             data: $("#initialize").serialize(),
             success: function(data) {
-                your_team_index = $("#draft_pos").val() - 1;
+                your_team_index = parseInt($("#draft_pos").val()) - 1;
                 players = data["players"]
                 teams = data["teams"]
                 curr_round = 0;
                 curr_team = 0;
                 step = 1;
+                rounds_lookahead = parseInt($("#rounds_lookahead").val());
                 initialize();
-                $("#data").show()
+                $(".show_on_load").show()
             }
         });
     });

@@ -8,8 +8,10 @@
 table {
     border: 0px;
     font-size: small;
-    text-align: left;
     padding: 3px;
+}
+td {
+    text-align: left;
 }
 #draft_table td {
     width: 100px;
@@ -34,31 +36,48 @@ span:hover {
 </head>
 <body>
 <h2>Draft Assistant</h2>
-<b>Initialize Draft</b><br>
-<form id="initialize">
-    Number of teams: <select name="num_teams" id="num_teams"></select><br>
-    Your draft position: <select name="draft_pos" id="draft_pos"></select><br>
-    <input type="submit" value="Load"/>
-</form>
-<div id="data">
-<div id="test"></div>
-Filter players:
-<select id="filter_player_list">
-    <option value="all">Show all</option>
-    <option value="QB">QB</option>
-    <option value="WR">WR</option>
-    <option value="RB">RB</option>
-    <option value="TE">TE</option>
-    <option value="DST">DST</option>
-    <option value="K">K</option>
-</select>
+<table class="grouping_table">
+<tr>
+    <td>
+        <b>Initialize Draft</b><br>
+        <form id="initialize">
+            Number of teams: <select name="num_teams" id="num_teams"></select><br>
+            Your draft position: <select name="draft_pos" id="draft_pos"></select><br>
+            Number of rounds to look ahead for pick suggestions:
+            <select id="rounds_lookahead">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select><br>
+            <input type="submit" value="Load"/>
+        </form>
+        <div class="show_on_load">
+        Filter players:
+        <select id="filter_player_list">
+            <option value="all">Show all</option>
+            <option value="QB">QB</option>
+            <option value="WR">WR</option>
+            <option value="RB">RB</option>
+            <option value="TE">TE</option>
+            <option value="DST">DST</option>
+            <option value="K">K</option>
+        </select>
+        </div>
+    </td>
+    <td>
+        <table class="regular_table" id="suggestions"></table>
+    </td>
+</tr>
+<div class="show_on_load">
 <table class="grouping_table">
 <tr>
     <td>
         <table class="regular_table" id="player_list"></table>
     </td>
     <td>
-        <button type="button" id="undo_pick">Undo Pick</button>
+        <button type="button" class="show_on_load" id="undo_pick">Undo Pick</button>
         <table class="regular_table" id="draft_table"></table><br>
         <table class="regular_table" id="your_team"></table>
     </td>
