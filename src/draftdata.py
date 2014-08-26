@@ -16,7 +16,7 @@ class FantasyProsParser:
             if self.current_player:
             	self.current_player["id"] = len(self.players)
                 self.players.append(self.current_player)
-            self.current_player = {"name": node.get("fp-player-name")}
+            self.current_player = {"name": node.get("fp-player-name"), "team_bye": node.getprevious().text if node.getprevious() is not None else None}
         if self.player_column is not None and node.tag == "td":
             if self.player_column == 0:
                 self.current_player["pos"] = "".join([char for char in node.text if not char.isdigit()])

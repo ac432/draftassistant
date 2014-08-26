@@ -75,6 +75,15 @@ function order_team(team_players) {
     return ordered_team;
 }
 
+function get_full_name(player) {
+    if (player["team_bye"] != null) {
+        return player["name_pos"] + " " + player["team_bye"];
+    }
+    else {
+        return player["name_pos"]
+    }
+}
+
 function initialize() {
     var player_list_html = "<tr><th></th><th>Avg Rank</th><th>ADP</th></tr>";
     for (var i = 0; i < players.length; i++) {
@@ -125,20 +134,20 @@ function initialize() {
     $("#draft_table").html(draft_table_html);
     var ordered_team = order_team(teams[your_team_index]["players"]);
     var your_team1_html = "<tr><th>Your Team</th></tr>";
-    your_team1_html += "<tr><td>QB</td><td>" + (ordered_team["QB"] ? ordered_team["QB"]["name_pos"] : "") + "</td></tr>";
+    your_team1_html += "<tr><td>QB</td><td>" + (ordered_team["QB"] ? get_full_name(ordered_team["QB"]) : "") + "</td></tr>";
     for (var i = 0; i < 3; i++) {
-        your_team1_html += "<tr><td>WR</td><td>" + (i < ordered_team["WR"].length ? ordered_team["WR"][i]["name_pos"] : "") + "</td></tr>";
+        your_team1_html += "<tr><td>WR</td><td>" + (i < ordered_team["WR"].length ? get_full_name(ordered_team["WR"][i]) : "") + "</td></tr>";
     }
     for (var i = 0; i < 2; i++) {
-        your_team1_html += "<tr><td>RB</td><td>" + (i < ordered_team["RB"].length ? ordered_team["RB"][i]["name_pos"] : "") + "</td></tr>";
+        your_team1_html += "<tr><td>RB</td><td>" + (i < ordered_team["RB"].length ? get_full_name(ordered_team["RB"][i]) : "") + "</td></tr>";
     }
-    your_team1_html += "<tr><td>TE</td><td>" + (ordered_team["TE"] ? ordered_team["TE"]["name_pos"] : "") + "</td></tr>";
-    your_team1_html += "<tr><td>DST</td><td>" + (ordered_team["DST"] ? ordered_team["DST"]["name_pos"] : "") + "</td></tr>";
+    your_team1_html += "<tr><td>TE</td><td>" + (ordered_team["TE"] ? get_full_name(ordered_team["TE"]) : "") + "</td></tr>";
+    your_team1_html += "<tr><td>DST</td><td>" + (ordered_team["DST"] ? get_full_name(ordered_team["DST"]) : "") + "</td></tr>";
     $("#your_team1").html(your_team1_html);
     var your_team2_html = "<tr><th>&nbsp;</th></tr>";
-    your_team2_html += "<tr><td>K</td><td>" + (ordered_team["K"] ? ordered_team["K"]["name_pos"] : "") + "</td></tr>";
+    your_team2_html += "<tr><td>K</td><td>" + (ordered_team["K"] ? get_full_name(ordered_team["K"]) : "") + "</td></tr>";
     for (var i = 0; i < 6; i++) {
-        your_team2_html += "<tr><td>BN</td><td>" + (i < ordered_team["BN"].length ? ordered_team["BN"][i]["name_pos"] : "") + "</td></tr>";
+        your_team2_html += "<tr><td>BN</td><td>" + (i < ordered_team["BN"].length ? get_full_name(ordered_team["BN"][i]) : "") + "</td></tr>";
     }
     $("#your_team2").html(your_team2_html);
     if (curr_round < 15) {
