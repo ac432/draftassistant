@@ -161,6 +161,7 @@ function evaluate_state(team) {
     var num_rb_bn = 0;
     var num_te_bn = 0;
     var num_dst_bn = 0;
+    var num_k_bn = 0
     var final_score = 0;
     var score = 0;
     var ordered_team = order_team(teams[team]["players"]);
@@ -176,13 +177,13 @@ function evaluate_state(team) {
                 }
                 if (pos == "K") {
                     if (teams[team]["players"].length == 14) {
-                        score *= 3.0;
+                        score *= 5.0;
                     }
                     else if (teams[team]["players"].length == 15) {
-                        score *= 0.8;
+                        score *= 1.0;
                     }
                     else {
-                        score *= 7.0;
+                        score *= 8.0;
                     }
                 }
                 final_score += score;
@@ -214,6 +215,9 @@ function evaluate_state(team) {
                     else if (ordered_team[pos][i]["pos"] == "DST") {
                         num_dst_bn += 1;
                     }
+                    else if (ordered_team[pos][i]["pos"] == "K") {
+                        num_k_bn += 1;
+                    }
                 }
                 final_score += score;
             }
@@ -243,6 +247,9 @@ function evaluate_state(team) {
     }
     else if (num_dst_bn > 0) {
         final_score *= 1.2;
+    }
+    if (num_k_bn > 0) {
+        final_score *= 2.0;
     }
     return final_score;
 }
