@@ -21,7 +21,7 @@ function numbers_dropdown(id, start, end, selected) {
 }
 
 function order_team(team_players) {
-    var ordered_team = {"QB": null, "WR": [], "RB": [], "TE": null, "DST": null, "K": null, "BN": []}
+    var ordered_team = {"QB": null, "WR": [], "RB": [], "TE": null, "WR/RB/TE": null, "DST": null, "K": null, "BN": []}
     for (var i = 0; i < team_players.length; i++) {
         if (team_players[i]["pos"] == "QB") {
             if (ordered_team["QB"] == null) {
@@ -32,8 +32,11 @@ function order_team(team_players) {
             }
         }
         else if (team_players[i]["pos"] == "WR") {
-            if (ordered_team["WR"].length < 3) {
+            if (ordered_team["WR"].length < 2) {
                 ordered_team["WR"].push(team_players[i]);
+            }
+            else if (ordered_team["WR/RB/TE"] == null) {
+                ordered_team["WR/RB/TE"] = team_players[i];
             }
             else {
                 ordered_team["BN"].push(team_players[i]);
@@ -43,6 +46,9 @@ function order_team(team_players) {
             if (ordered_team["RB"].length < 2) {
                 ordered_team["RB"].push(team_players[i]);
             }
+            else if (ordered_team["WR/RB/TE"] == null) {
+                ordered_team["WR/RB/TE"] = team_players[i];
+            }
             else {
                 ordered_team["BN"].push(team_players[i]);
             }
@@ -50,6 +56,9 @@ function order_team(team_players) {
         else if (team_players[i]["pos"] == "TE") {
             if (ordered_team["TE"] == null) {
                 ordered_team["TE"] = team_players[i];
+            }
+            else if (ordered_team["WR/RB/TE"] == null) {
+                ordered_team["WR/RB/TE"] = team_players[i];
             }
             else {
                 ordered_team["BN"].push(team_players[i]);
@@ -135,13 +144,14 @@ function initialize() {
     var ordered_team = order_team(teams[your_team_index]["players"]);
     var your_team1_html = "<tr><th>Your Team</th></tr>";
     your_team1_html += "<tr><td>QB</td><td>" + (ordered_team["QB"] ? get_full_name(ordered_team["QB"]) : "") + "</td></tr>";
-    for (var i = 0; i < 3; i++) {
+    for (var i = 0; i < 2; i++) {
         your_team1_html += "<tr><td>WR</td><td>" + (i < ordered_team["WR"].length ? get_full_name(ordered_team["WR"][i]) : "") + "</td></tr>";
     }
     for (var i = 0; i < 2; i++) {
         your_team1_html += "<tr><td>RB</td><td>" + (i < ordered_team["RB"].length ? get_full_name(ordered_team["RB"][i]) : "") + "</td></tr>";
     }
     your_team1_html += "<tr><td>TE</td><td>" + (ordered_team["TE"] ? get_full_name(ordered_team["TE"]) : "") + "</td></tr>";
+    your_team1_html += "<tr><td>WR/RB/TE</td><td>" + (ordered_team["WR/RB/TE"] ? get_full_name(ordered_team["WR/RB/TE"]) : "") + "</td></tr>";
     your_team1_html += "<tr><td>DST</td><td>" + (ordered_team["DST"] ? get_full_name(ordered_team["DST"]) : "") + "</td></tr>";
     $("#your_team1").html(your_team1_html);
     var your_team2_html = "<tr><th>&nbsp;</th></tr>";
@@ -166,7 +176,7 @@ function evaluate_state(team) {
     var score = 0;
     var ordered_team = order_team(teams[team]["players"]);
     for (var pos in ordered_team) {
-        if (pos == "QB" || pos == "TE" || pos == "DST" || pos == "K") {
+        if (pos == "QB" || pos == "TE" || pos == "WR/RB/TE" || pos == "DST" || pos == "K") {
             if (ordered_team[pos] != null) {
                 var score = 0;
                 if (ordered_team[pos]["adp"] != null) {
