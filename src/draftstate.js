@@ -406,12 +406,12 @@ function select_player(player_id, simulation) {
         players[player_id]["is_drafted"] = true;
         teams[curr_team]["players"].push(players[player_id]);
         if (curr_team + step >= teams.length) {
-           curr_round += 1;
-           step = -1;
+            curr_round += 1;
+            step = -1;
         }
         else if (curr_team + step < 0) {
-           curr_round += 1;
-           step = 1;
+            curr_round += 1;
+            step = 1;
         }
         else {
             curr_team += step;
