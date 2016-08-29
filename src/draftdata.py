@@ -1,6 +1,6 @@
 import os
 import json
-import urllib2
+import requests
 import lxml.html
 from pprint import pprint
 
@@ -21,15 +21,15 @@ class FantasyProsParser:
             if self.player_column == 0:
                 self.current_player["pos"] = "".join([char for char in node.text if not char.isdigit()])
                 self.current_player["name_pos"] = "%s (%s)" % (self.current_player["name"], self.current_player["pos"])
-            elif self.player_column == 3:
+            elif self.player_column == 4:
                 self.current_player["avg_rank"] = float(node.text) if node.text else None
-            elif self.player_column == 5:
+            elif self.player_column == 6:
                 self.current_player["adp"] = float(node.text) if node.text else None
             self.player_column += 1
         for child_node in node:
             self.process_html(child_node)
 
-html = urllib2.urlopen("http://www.fantasypros.com/nfl/rankings/consensus-cheatsheets.php").read()
+html = requests.get("https://www.fantasypros.com/nfl/rankings/half-point-ppr-cheatsheets.php").text
 node = lxml.html.document_fromstring(html)
 parser = FantasyProsParser()
 parser.process_html(node)
