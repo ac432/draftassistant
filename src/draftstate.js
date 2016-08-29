@@ -404,9 +404,11 @@ function undo_pick(simulation) {
 function auto_draft() {
     for (var i = 0; i < 15; i++) {
         for (var j = 0; j < teams.length; j++) {
-            setTimeout(function(){select_player(best_pick_id, false)}, 500);
+            load_suggestions();
+            select_player(best_pick_id, true);
         }
     }
+    initialize();
 }
 
 $(document).ready(function(){
