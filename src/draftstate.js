@@ -231,7 +231,7 @@ function evaluate_state(team) {
         final_score *= 2.0;
     }
     if (Math.abs(num_wr_total - num_rb_total) > 1) {
-        final_score *= 1.2;
+        final_score *= 1.1;
     }
     if (num_te_bn > 1) {
         final_score *= 2.0;
@@ -394,6 +394,7 @@ function undo_pick(simulation) {
 }
 
 function auto_draft() {
+    $("#filter_player_list").val("all");
     for (var i = 0; i < 15; i++) {
         for (var j = 0; j < teams.length; j++) {
             if (curr_round < 15) {
