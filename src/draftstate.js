@@ -408,7 +408,7 @@ function auto_draft() {
 $(document).ready(function(){
     $(".show_on_load").hide()
     numbers_dropdown("num_teams", 4, 16, 12);
-    numbers_dropdown("draft_pos", 1, 10, 1);
+    numbers_dropdown("draft_pos", 1, 12, 1);
     $("#num_teams").change(function(){
         numbers_dropdown("draft_pos", 1, parseInt($("#num_teams").val()), parseInt($("#draft_pos").val()));
     });
