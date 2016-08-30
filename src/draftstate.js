@@ -251,55 +251,61 @@ function get_possible_picks() {
         if ("is_drafted" in players[i]) {
             continue;
         }
-        if (players[i]["pos"] == "QB") {
-            if (num_qb >= num_each_pos) {
-                continue;
+        if ($("#filter_player_list").val() == "all" || players[i]["pos"] == $("#filter_player_list").val()) {
+            var mod = 1;
+            if (players[i]["pos"] == $("#filter_player_list").val()) {
+                mod = 3;
             }
-            else {
-                num_qb += 1;
+            if (players[i]["pos"] == "QB") {
+                if (num_qb >= num_each_pos * mod) {
+                    continue;
+                }
+                else {
+                    num_qb += 1;
+                }
             }
+            else if (players[i]["pos"] == "WR") {
+                if (num_wr >= num_each_pos * mod) {
+                    continue;
+                }
+                else {
+                    num_wr += 1;
+                }
+            }
+            else if (players[i]["pos"] == "RB") {
+                if (num_rb >= num_each_pos * mod) {
+                    continue;
+                }
+                else {
+                    num_rb += 1;
+                }
+            }
+            else if (players[i]["pos"] == "TE") {
+                if (num_te >= num_each_pos * mod) {
+                    continue;
+                }
+                else {
+                    num_te += 1;
+                }
+            }
+            else if (players[i]["pos"] == "DST") {
+                if (num_dst >= num_each_pos * mod) {
+                    continue;
+                }
+                else {
+                    num_dst += 1;
+                }
+            }
+            else if (players[i]["pos"] == "K") {
+                if (num_k >= num_each_pos * mod) {
+                    continue;
+                }
+                else {
+                    num_k += 1;
+                }
+            }
+            possible_picks.push(i);
         }
-        else if (players[i]["pos"] == "WR") {
-            if (num_wr >= num_each_pos) {
-                continue;
-            }
-            else {
-                num_wr += 1;
-            }
-        }
-        else if (players[i]["pos"] == "RB") {
-            if (num_rb >= num_each_pos) {
-                continue;
-            }
-            else {
-                num_rb += 1;
-            }
-        }
-        else if (players[i]["pos"] == "TE") {
-            if (num_te >= num_each_pos) {
-                continue;
-            }
-            else {
-                num_te += 1;
-            }
-        }
-        else if (players[i]["pos"] == "DST") {
-            if (num_dst >= num_each_pos) {
-                continue;
-            }
-            else {
-                num_dst += 1;
-            }
-        }
-        else if (players[i]["pos"] == "K") {
-            if (num_k >= num_each_pos) {
-                continue;
-            }
-            else {
-                num_k += 1;
-            }
-        }
-        possible_picks.push(i);
     }
     return possible_picks;
 }
