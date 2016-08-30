@@ -223,7 +223,7 @@ function evaluate_state(team) {
     if (num_qb_bn > 1) {
         final_score *= 2.0;
     }
-    if (Math.abs(num_wr_bn - num_rb_bn) > 1) {
+    if (Math.abs(num_wr_bn - num_rb_bn) > 2) {
         final_score *= 1.2;
     }
     if (num_te_bn > 1) {
