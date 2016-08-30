@@ -316,7 +316,7 @@ function find_best_picks() {
         best_picks.push({"score": score, "player_id": possible_picks[i]});
     }
     best_picks.sort(function(a,b){return a["score"] - b["score"]});
-    best_picks = best_picks.slice(0, 6);
+    best_picks = best_picks.slice(0, 8);
     return best_picks;
 }
 
