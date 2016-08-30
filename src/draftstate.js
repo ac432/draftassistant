@@ -166,8 +166,8 @@ function initialize() {
 
 function evaluate_state(team) {
     var num_qb_bn = 0;
-    var num_wr_bn = 0;
-    var num_rb_bn = 0;
+    var num_wr_total = 0;
+    var num_rb_total = 0;
     var num_te_bn = 0;
     var num_dst_bn = 0;
     var num_k_bn = 0
@@ -177,16 +177,23 @@ function evaluate_state(team) {
         if (pos == "QB" || pos == "TE" || pos == "WR/RB/TE" || pos == "DST" || pos == "K") {
             if (ordered_team[pos] != null) {
                 var score = ordered_team[pos]["score"];
+                if (ordered_team[pos]["pos"] == "WR") {
+                    num_wr_total += 1;
+                }
+                else if (ordered_team[pos]["pos"] == "RB") {
+                    num_rb_total += 1;
+                }
                 if (pos == "K") {
-                    if (teams[team]["players"].length == 14) {
-                        score *= 5.0;
-                    }
-                    else if (teams[team]["players"].length == 15) {
+                    if (teams[team]["players"].length == 15) {
                         score *= 1.0;
                     }
                     else {
                         score *= 8.0;
                     }
+                }
+                else if (pos == "DST") {
+                    var mod = 16 - teams[team]["players"].length;
+                    score *= mod;
                 }
                 final_score += score;
             }
@@ -200,10 +207,10 @@ function evaluate_state(team) {
                         num_qb_bn += 1;
                     }
                     else if (ordered_team[pos][i]["pos"] == "WR") {
-                        num_wr_bn += 1;
+                        num_wr_total += 1;
                     }
                     else if (ordered_team[pos][i]["pos"] == "RB") {
-                        num_rb_bn += 1;
+                        num_rb_total += 1;
                     }
                     else if (ordered_team[pos][i]["pos"] == "TE") {
                         num_te_bn += 1;
@@ -223,7 +230,7 @@ function evaluate_state(team) {
     if (num_qb_bn > 1) {
         final_score *= 2.0;
     }
-    if (Math.abs(num_wr_bn - num_rb_bn) > 2) {
+    if (Math.abs(num_wr_total - num_rb_total) > 1) {
         final_score *= 1.2;
     }
     if (num_te_bn > 1) {
