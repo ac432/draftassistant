@@ -173,7 +173,6 @@ function evaluate_state(team) {
     var num_k_bn = 0
     var final_score = 0;
     var ordered_team = order_team(teams[team]["players"]);
-    console.log("ordered team", JSON.stringify(ordered_team, null, 4))
     for (var pos in ordered_team) {
         if (pos == "QB" || pos == "TE" || pos == "WR/RB/TE" || pos == "DST" || pos == "K") {
             if (ordered_team[pos] != null) {
@@ -230,7 +229,7 @@ function evaluate_state(team) {
     if (num_te_bn > 1) {
         final_score *= 2.0;
     }
-    if (num_dst_bn > 1) {
+    if (num_dst_bn > 0) {
         final_score *= 2.0;
     }
     if (num_k_bn > 0) {
