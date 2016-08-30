@@ -335,6 +335,7 @@ function find_best_picks() {
 
 function load_suggestions() {
     var best_picks = find_best_picks();
+    //console.log("best picks", JSON.stringify(best_picks, null, 4))
     var suggestions_html = "<tr><th>Estimated Team Rank</th><th>Suggested Pick</th></tr>";
     best_pick_id = best_picks[0]["player_id"];
     for (var i = 0; i < best_picks.length; i++) {
@@ -395,8 +396,10 @@ function undo_pick(simulation) {
 function auto_draft() {
     for (var i = 0; i < 15; i++) {
         for (var j = 0; j < teams.length; j++) {
-            load_suggestions();
-            select_player(best_pick_id, true);
+            if (curr_round < 15) {
+                load_suggestions();
+                select_player(best_pick_id, true);
+            }
         }
     }
     initialize();
