@@ -236,26 +236,14 @@ function evaluate_state(team) {
     if (num_qb_bn > 1) {
         final_score *= 2.0;
     }
-    else if (num_qb_bn > 0) {
-        final_score *= 1.1;
-    }
     if (Math.abs(num_wr_bn - num_rb_bn) > 1) {
         final_score *= 1.2;
-    }
-    else if (num_rb_bn - num_wr_bn > 0) {
-        final_score *= 1.1;
     }
     if (num_te_bn > 1) {
         final_score *= 2.0;
     }
-    else if (num_te_bn > 0) {
-        final_score *= 1.05;
-    }
     if (num_dst_bn > 1) {
         final_score *= 2.0;
-    }
-    else if (num_dst_bn > 0) {
-        final_score *= 1.2;
     }
     if (num_k_bn > 0) {
         final_score *= 2.0;
@@ -413,7 +401,7 @@ function auto_draft() {
 
 $(document).ready(function(){
     $(".show_on_load").hide()
-    numbers_dropdown("num_teams", 4, 14, 10);
+    numbers_dropdown("num_teams", 4, 16, 12);
     numbers_dropdown("draft_pos", 1, 10, 1);
     $("#num_teams").change(function(){
         numbers_dropdown("draft_pos", 1, parseInt($("#num_teams").val()), parseInt($("#draft_pos").val()));
