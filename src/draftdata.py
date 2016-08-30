@@ -15,7 +15,10 @@ class FantasyProsParser:
         if node.tag == "a" and node.get("fp-player-name") is not None:
             self.player_column = 0
             if self.current_player:
-            	self.current_player["id"] = len(self.players)
+                if self.current_player["adp"]:
+                    self.current_player["score"] = (self.current_player["avg_rank"] + self.current_player["adp"]) / 2
+                else:
+                    self.current_player["score"] = self.current_player["avg_rank"]
                 self.players.append(self.current_player)
             self.current_player = {"name": node.get("fp-player-name"), "team_bye": node.getprevious().text if node.getprevious() is not None else None, "notes": ""}
             print "%s. %s" % (len(self.players) + 1, self.current_player["name"])
@@ -52,9 +55,15 @@ class FantasyProsParser:
         for child_node in node:
             self.get_player_notes(child_node)
 
+    def reorder_players(self):
+        self.players = sorted(self.players, key=lambda x: x["score"])
+        for i, player in enumerate(self.players):
+            player["id"] = i
+
 html = requests.get("https://www.fantasypros.com/nfl/rankings/half-point-ppr-cheatsheets.php").text
 node = lxml.html.document_fromstring(html)
 parser = FantasyProsParser()
 parser.process_players(node)
+parser.reorder_players()
 with open("..%sdata%splayers.json" % (os.sep, os.sep), "w") as f:
     json.dump(parser.players, f)

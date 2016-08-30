@@ -172,18 +172,12 @@ function evaluate_state(team) {
     var num_dst_bn = 0;
     var num_k_bn = 0
     var final_score = 0;
-    var score = 0;
     var ordered_team = order_team(teams[team]["players"]);
+    console.log("ordered team", JSON.stringify(ordered_team, null, 4))
     for (var pos in ordered_team) {
         if (pos == "QB" || pos == "TE" || pos == "WR/RB/TE" || pos == "DST" || pos == "K") {
             if (ordered_team[pos] != null) {
-                var score = 0;
-                if (ordered_team[pos]["adp"] != null) {
-                    score = (ordered_team[pos]["avg_rank"] + ordered_team[pos]["adp"]) / 2;
-                }
-                else {
-                    score = ordered_team[pos]["avg_rank"];
-                }
+                var score = ordered_team[pos]["score"];
                 if (pos == "K") {
                     if (teams[team]["players"].length == 14) {
                         score *= 5.0;
@@ -200,13 +194,7 @@ function evaluate_state(team) {
         }
         else if (pos == "WR" || pos == "RB" || pos == "BN") {
             for (var i = 0; i < ordered_team[pos].length; i++) {
-                var score = 0;
-                if (ordered_team[pos][i]["adp"] != null) {
-                    score = (ordered_team[pos][i]["avg_rank"] + ordered_team[pos][i]["adp"]) / 2;
-                }
-                else {
-                    score = ordered_team[pos][i]["avg_rank"];
-                }
+                var score = ordered_team[pos][i]["score"];
                 if (pos == "BN") {
                     score *= 4.0;
                     if (ordered_team[pos][i]["pos"] == "QB") {
