@@ -341,8 +341,11 @@ function load_suggestions() {
         suggestions_html += "<tr>";
         suggestions_html += "<td>" + best_picks[i]["score"].toFixed(2) + "</td>";
         suggestions_html += "<td><span class=\"undrafted_player\" onclick=\"select_player(" + best_picks[i]["player_id"] + ", false)\">" + 
-            players[best_picks[i]["player_id"]]["name_pos"] + "</span></td>";
-        suggestions_html += "</tr>";
+            players[best_picks[i]["player_id"]]["name_pos"] + "</span>";
+        if (players[best_picks[i]["player_id"]]["notes"] != "") {
+            suggestions_html += "<a href=\"#\" title=\"" + players[best_picks[i]["player_id"]]["notes"] + "\">Notes</a>";
+        }
+        suggestions_html += "</td></tr>";
     }
     $("#suggestions").html(suggestions_html);
 }
@@ -452,3 +455,5 @@ $(document).ready(function(){
         }
     });
 });
+
+$(document).tooltip();

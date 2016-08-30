@@ -20,10 +20,13 @@ class FantasyProsParser:
             self.current_player = {"name": node.get("fp-player-name"), "team_bye": node.getprevious().text if node.getprevious() is not None else None, "notes": ""}
             print "%s. %s" % (len(self.players) + 1, self.current_player["name"])
             # Get notes
-            player_name_url = self.current_player["name"].replace("'", "").replace(".", "").replace(" ", "-").lower()
-            html = requests.get("https://www.fantasypros.com/nfl/news/%s.php" % player_name_url).text
-            player_node = lxml.html.document_fromstring(html)
-            self.get_player_notes(player_node)
+            player_url_node = node.getprevious().getprevious()
+            if player_url_node is not None:
+                player_url = "https://www.fantasypros.com%s" % player_url_node.get("href").replace("players", "news")
+                player_url = player_url[:player_url.find("?")]
+                html = requests.get(player_url).text
+                player_node = lxml.html.document_fromstring(html)
+                self.get_player_notes(player_node)
         if self.player_column is not None and node.tag == "td":
             if self.player_column == 0:
                 self.current_player["pos"] = "".join([char for char in node.text if not char.isdigit()])
