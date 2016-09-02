@@ -60,14 +60,14 @@ td {
     <td>
         <b>Initialize Draft</b><br>
         <form id="initialize">
-            Number of teams: <select name="num_teams" id="num_teams"></select><br>
-            Your draft position: <select name="draft_pos" id="draft_pos"></select><br>
+            Number of teams: <select name="num_teams" id="num_teams"></select><br><br>
+            Your draft position: <select name="draft_pos" id="draft_pos"></select><br><br>
             Scoring format:
             <select name="scoring_format" id="scoring_format">
                 <option value="consensus">Standard</option>
                 <option value="half-point-ppr">Half PPR</option>
                 <option value="ppr">PPR</option>
-            </select><br>
+            </select><br><br>
             Number of WR:
             <select name="num_wr" id="num_wr">
                 <option value="0">0</option>
@@ -75,7 +75,7 @@ td {
                 <option value="2">2</option>
                 <option selected="selected" value="3">3</option>
                 <option value="4">4</option>
-            </select><br>
+            </select><br><br>
             Number of RB:
             <select name="num_rb" id="num_rb">
                 <option value="0">0</option>
@@ -83,7 +83,7 @@ td {
                 <option selected="selected" value="2">2</option>
                 <option value="3">3</option>
                 <option value="4">4</option>
-            </select><br>
+            </select><br><br>
             Number of WR/RB/TE:
             <select name="num_wr_rb_te" id="num_wr_rb_te">
                 <option selected="selected" value="0">0</option>
@@ -91,7 +91,7 @@ td {
                 <option value="2">2</option>
                 <option value="3">3</option>
                 <option value="4">4</option>
-            </select><br>
+            </select><br><br>
             <input type="submit" value="Load"/>
         </form>
     </td>
@@ -117,9 +117,10 @@ td {
             <option value="TE">TE</option>
             <option value="DST">DST</option>
             <option value="K">K</option>
-        </select><br>
-        <input type="checkbox" class="show_on_load" id="show_drafted_players" value="true"></input>
-        <span class="show_on_load">Show Drafted Players</span>
+        </select><br><br>
+        <span class="show_on_load">Show drafted players:</span>
+        <input type="checkbox" class="show_on_load" id="show_drafted_players" value="true"></input><br><br>
+        <input class="show_on_load" id="player_search" placeholder="Player Search"></input>
         <table class="regular_table" id="player_list"></table>
     </td>
     <td>

@@ -104,7 +104,11 @@ function initialize() {
         if ($("#filter_player_list").val() == "all" || players[i]["pos"] == $("#filter_player_list").val()) {
             pos_check = true;
         }
-        if (show_player && pos_check) {
+        var name_check = false
+        if ($("#player_search").val() == "" || players[i]["name_pos"].toLowerCase().indexOf($("#player_search").val().toLowerCase()) != -1) {
+            name_check = true;
+        }
+        if (show_player && pos_check && name_check) {
             if ("is_drafted" in players[i]) {
                 player_list_html += "<tr><td>" + (i + 1) + ". <span class=\"drafted_player\">" + players[i]["name_pos"] + 
                     "</span></td><td>" +  players[i]["avg_rank"] + "</td><td>" +  players[i]["adp"] + "</td></tr>";
@@ -255,7 +259,15 @@ function get_possible_picks() {
         if ("is_drafted" in players[i]) {
             continue;
         }
+        var pos_check = false;
         if ($("#filter_player_list").val() == "all" || players[i]["pos"] == $("#filter_player_list").val()) {
+            pos_check = true;
+        }
+        var name_check = false
+        if ($("#player_search").val() == "" || players[i]["name_pos"].toLowerCase().indexOf($("#player_search").val().toLowerCase()) != -1) {
+            name_check = true;
+        }
+        if (pos_check && name_check) {
             var mod = 1;
             if (players[i]["pos"] == $("#filter_player_list").val()) {
                 mod = 3;
@@ -435,8 +447,11 @@ $(document).ready(function(){
     $("#show_drafted_players").click(function(){
         initialize();
     });
-    $("#undo_pick").click(function(){
-        undo_pick(false);
+    $("#filter_player_list").change(function(){
+        initialize();
+    });
+    $("#player_search").keyup(function(){
+        initialize();
     });
     $("#auto_draft").click(function(){
         $("#auto_draft_confirm").html("Do you really want to auto draft the rest of the picks?");
