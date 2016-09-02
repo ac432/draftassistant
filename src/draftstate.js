@@ -376,6 +376,8 @@ function select_player(player_id, simulation) {
             curr_team += step;
         }
         if (simulation == false) {
+            $("#filter_player_list").val("all");
+            $("#player_search").val("");
             initialize();
         }
     }
