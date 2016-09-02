@@ -447,11 +447,11 @@ $(document).ready(function(){
     $("#show_drafted_players").click(function(){
         initialize();
     });
-    $("#filter_player_list").change(function(){
-        initialize();
-    });
     $("#player_search").keyup(function(){
         initialize();
+    });
+    $("#undo_pick").click(function(){
+        undo_pick(false);
     });
     $("#auto_draft").click(function(){
         $("#auto_draft_confirm").html("Do you really want to auto draft the rest of the picks?");
