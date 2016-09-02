@@ -95,6 +95,7 @@ function get_full_name(player) {
 
 function initialize() {
     var player_list_html = "<tr><th></th><th>Avg Rank</th><th>ADP</th></tr>";
+    var num_displayed_players = 0;
     for (var i = 0; i < players.length; i++) {
         var show_player = false;
         if (!("is_drafted" in players[i]) || $("#show_drafted_players").prop("checked")) {
@@ -116,7 +117,11 @@ function initialize() {
             else {
                 player_list_html += "<tr><td>" + (i + 1) + ". <span class=\"undrafted_player\" onclick=\"select_player(" + i + ", false)\">" + players[i]["name_pos"] + 
                     "</span></td><td>" +  players[i]["avg_rank"] + "</td><td>" +  players[i]["adp"] + "</td></tr>";
+                num_displayed_players += 1;
             }
+        }
+        if (num_displayed_players == 20) {
+            break;
         }
     }
     $("#player_list").html(player_list_html);
@@ -376,6 +381,7 @@ function select_player(player_id, simulation) {
             curr_team += step;
         }
         if (simulation == false) {
+            $("#show_drafted_players").prop("checked", false);
             $("#filter_player_list").val("all");
             $("#player_search").val("");
             initialize();
