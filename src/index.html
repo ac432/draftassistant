@@ -62,6 +62,12 @@ td {
         <form id="initialize">
             Number of teams: <select name="num_teams" id="num_teams"></select><br>
             Your draft position: <select name="draft_pos" id="draft_pos"></select><br>
+            Scoring format:
+            <select name="scoring_format" id="scoring_format">
+                <option value="consensus">Standard</option>
+                <option value="half-point-ppr">Half PPR</option>
+                <option value="ppr">PPR</option>
+            </select><br>
             <input type="submit" value="Load"/>
         </form>
     </td>

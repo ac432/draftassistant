@@ -60,10 +60,13 @@ class FantasyProsParser:
         for i, player in enumerate(self.players):
             player["id"] = i
 
-html = requests.get("https://www.fantasypros.com/nfl/rankings/half-point-ppr-cheatsheets.php").text
-node = lxml.html.document_fromstring(html)
-parser = FantasyProsParser()
-parser.process_players(node)
-parser.reorder_players()
-with open("..%sdata%splayers.json" % (os.sep, os.sep), "w") as f:
-    json.dump(parser.players, f)
+for scoring_format in ["consensus", "ppr", "half-point-ppr"]:
+    print scoring_format
+    html = requests.get("https://www.fantasypros.com/nfl/rankings/%s-cheatsheets.php" % scoring_format).text
+    node = lxml.html.document_fromstring(html)
+    parser = FantasyProsParser()
+    parser.process_players(node)
+    parser.reorder_players()
+    with open("..%sdata%s%s-players.json" % (os.sep, os.sep, scoring_format), "w") as f:
+        json.dump(parser.players, f)
+    print ""
