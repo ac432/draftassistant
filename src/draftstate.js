@@ -3,6 +3,7 @@ var players = {};
 var teams = {};
 var curr_round = 0;
 var curr_team = 0;
+var max_round = 0;
 var step = 1;
 var best_pick_id = 0;
 
@@ -20,7 +21,7 @@ function numbers_dropdown(id, start, end, selected) {
 }
 
 function order_team(team_players) {
-    var ordered_team = {"QB": null, "WR": [], "RB": [], "TE": null, "WR/RB/TE": null, "DST": null, "K": null, "BN": []}
+    var ordered_team = {"QB": null, "WR": [], "RB": [], "TE": null, "WR/RB/TE": [], "DST": null, "K": null, "BN": []}
     for (var i = 0; i < team_players.length; i++) {
         if (team_players[i]["pos"] == "QB") {
             if (ordered_team["QB"] == null) {
@@ -31,22 +32,22 @@ function order_team(team_players) {
             }
         }
         else if (team_players[i]["pos"] == "WR") {
-            if (ordered_team["WR"].length < 2) {
+            if (ordered_team["WR"].length < parseInt($("#num_wr").val())) {
                 ordered_team["WR"].push(team_players[i]);
             }
-            else if (ordered_team["WR/RB/TE"] == null) {
-                ordered_team["WR/RB/TE"] = team_players[i];
+            else if (ordered_team["WR/RB/TE"].length < parseInt($("#num_wr_rb_te").val())) {
+                ordered_team["WR/RB/TE"].push(team_players[i]);
             }
             else {
                 ordered_team["BN"].push(team_players[i]);
             }
         }
         else if (team_players[i]["pos"] == "RB") {
-            if (ordered_team["RB"].length < 2) {
+            if (ordered_team["RB"].length < parseInt($("#num_rb").val())) {
                 ordered_team["RB"].push(team_players[i]);
             }
-            else if (ordered_team["WR/RB/TE"] == null) {
-                ordered_team["WR/RB/TE"] = team_players[i];
+            else if (ordered_team["WR/RB/TE"].length < parseInt($("#num_wr_rb_te").val())) {
+                ordered_team["WR/RB/TE"].push(team_players[i]);
             }
             else {
                 ordered_team["BN"].push(team_players[i]);
@@ -56,8 +57,8 @@ function order_team(team_players) {
             if (ordered_team["TE"] == null) {
                 ordered_team["TE"] = team_players[i];
             }
-            else if (ordered_team["WR/RB/TE"] == null) {
-                ordered_team["WR/RB/TE"] = team_players[i];
+            else if (ordered_team["WR/RB/TE"].length < parseInt($("#num_wr_rb_te").val())) {
+                ordered_team["WR/RB/TE"].push(team_players[i]);
             }
             else {
                 ordered_team["BN"].push(team_players[i]);
@@ -125,7 +126,7 @@ function initialize() {
         }
     }
     draft_table_html += "</tr>";
-    for (var i = 0; i < 15; i++) {
+    for (var i = 0; i < max_round; i++) {
         draft_table_html += "<tr><td>Round " + (i + 1) + "</td>";
         for (var j = 0; j < teams.length; j++) {
             if (i == curr_round && j == curr_team) {
@@ -143,23 +144,25 @@ function initialize() {
     var ordered_team = order_team(teams[your_team_index]["players"]);
     var your_team1_html = "<tr><th>Your Team</th></tr>";
     your_team1_html += "<tr><td>QB</td><td>" + (ordered_team["QB"] ? get_full_name(ordered_team["QB"]) : "") + "</td></tr>";
-    for (var i = 0; i < 2; i++) {
+    for (var i = 0; i < parseInt($("#num_wr").val()); i++) {
         your_team1_html += "<tr><td>WR</td><td>" + (i < ordered_team["WR"].length ? get_full_name(ordered_team["WR"][i]) : "") + "</td></tr>";
     }
-    for (var i = 0; i < 2; i++) {
+    for (var i = 0; i < parseInt($("#num_rb").val()); i++) {
         your_team1_html += "<tr><td>RB</td><td>" + (i < ordered_team["RB"].length ? get_full_name(ordered_team["RB"][i]) : "") + "</td></tr>";
     }
     your_team1_html += "<tr><td>TE</td><td>" + (ordered_team["TE"] ? get_full_name(ordered_team["TE"]) : "") + "</td></tr>";
-    your_team1_html += "<tr><td>WR/RB/TE</td><td>" + (ordered_team["WR/RB/TE"] ? get_full_name(ordered_team["WR/RB/TE"]) : "") + "</td></tr>";
-    your_team1_html += "<tr><td>DST</td><td>" + (ordered_team["DST"] ? get_full_name(ordered_team["DST"]) : "") + "</td></tr>";
+    for (var i = 0; i < parseInt($("#num_wr_rb_te").val()); i++) {
+        your_team1_html += "<tr><td>WR/RB/TE</td><td>" + (i < ordered_team["WR/RB/TE"].length ? get_full_name(ordered_team["WR/RB/TE"][i]) : "") + "</td></tr>";
+    }
     $("#your_team1").html(your_team1_html);
     var your_team2_html = "<tr><th>&nbsp;</th></tr>";
+    your_team2_html += "<tr><td>DST</td><td>" + (ordered_team["DST"] ? get_full_name(ordered_team["DST"]) : "") + "</td></tr>";
     your_team2_html += "<tr><td>K</td><td>" + (ordered_team["K"] ? get_full_name(ordered_team["K"]) : "") + "</td></tr>";
     for (var i = 0; i < 6; i++) {
         your_team2_html += "<tr><td>BN</td><td>" + (i < ordered_team["BN"].length ? get_full_name(ordered_team["BN"][i]) : "") + "</td></tr>";
     }
     $("#your_team2").html(your_team2_html);
-    if (curr_round < 15) {
+    if (curr_round < max_round) {
         load_suggestions();
     }
 }
@@ -174,17 +177,11 @@ function evaluate_state(team) {
     var final_score = 0;
     var ordered_team = order_team(teams[team]["players"]);
     for (var pos in ordered_team) {
-        if (pos == "QB" || pos == "TE" || pos == "WR/RB/TE" || pos == "DST" || pos == "K") {
+        if (pos == "QB" || pos == "TE" || pos == "DST" || pos == "K") {
             if (ordered_team[pos] != null) {
                 var score = ordered_team[pos]["score"];
-                if (ordered_team[pos]["pos"] == "WR") {
-                    num_wr_total += 1;
-                }
-                else if (ordered_team[pos]["pos"] == "RB") {
-                    num_rb_total += 1;
-                }
                 if (pos == "K") {
-                    if (teams[team]["players"].length == 15) {
+                    if (teams[team]["players"].length == max_round) {
                         score *= 1.0;
                     }
                     else {
@@ -198,7 +195,7 @@ function evaluate_state(team) {
                 final_score += score;
             }
         }
-        else if (pos == "WR" || pos == "RB" || pos == "BN") {
+        else if (pos == "WR" || pos == "RB" || pos == "WR/RB/TE" || pos == "BN") {
             for (var i = 0; i < ordered_team[pos].length; i++) {
                 var score = ordered_team[pos][i]["score"];
                 if (pos == "BN") {
@@ -352,7 +349,7 @@ function load_suggestions() {
 }
 
 function select_player(player_id, simulation) {
-    if (curr_round < 15) {
+    if (curr_round < max_round) {
         players[player_id]["is_drafted"] = true;
         teams[curr_team]["players"].push(players[player_id]);
         if (curr_team + step >= teams.length) {
@@ -395,9 +392,9 @@ function undo_pick(simulation) {
 
 function auto_draft() {
     $("#filter_player_list").val("all");
-    for (var i = 0; i < 15; i++) {
+    for (var i = 0; i < max_round; i++) {
         for (var j = 0; j < teams.length; j++) {
-            if (curr_round < 15) {
+            if (curr_round < max_round) {
                 load_suggestions();
                 select_player(best_pick_id, true);
             }
@@ -425,6 +422,7 @@ $(document).ready(function(){
                 teams = data["teams"]
                 curr_round = 0;
                 curr_team = 0;
+                max_round = parseInt($("#num_wr").val()) + parseInt($("#num_rb").val()) + parseInt($("#num_wr_rb_te").val()) + 10
                 step = 1;
                 initialize();
                 $(".show_on_load").show()
