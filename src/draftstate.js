@@ -333,7 +333,7 @@ function get_possible_picks() {
 
 function find_best_picks() {
     var possible_picks = get_possible_picks();
-    //console.log("possible picks", JSON.stringify(possible_picks, null, 4))
+    //console.log("possible picks", JSON.stringify(possible_picks, null, 4));
     var best_picks = [];
     var saved_curr_team = curr_team
     for (var i = 0; i < possible_picks.length; i++) {
@@ -349,7 +349,7 @@ function find_best_picks() {
 
 function load_suggestions() {
     var best_picks = find_best_picks();
-    //console.log("best picks", JSON.stringify(best_picks, null, 4))
+    //console.log("best picks", JSON.stringify(best_picks, null, 4));
     var suggestions_html = "<tr><th>Estimated Team Rank</th><th>Suggested Pick</th></tr>";
     best_pick_id = best_picks[0]["player_id"];
     for (var i = 0; i < best_picks.length; i++) {

@@ -20,13 +20,12 @@ class FantasyProsParser:
                 else:
                     self.current_player["score"] = self.current_player["avg_rank"]
                 self.players.append(self.current_player)
-            self.current_player = {"name": node.get("fp-player-name"), "team_bye": node.getprevious().text if node.getprevious() is not None else None, "notes": ""}
+            self.current_player = {"name": node.get("fp-player-name"), "notes": ""}
             print "%s. %s" % (len(self.players) + 1, self.current_player["name"])
             # Get notes
             player_url_node = node.getprevious().getprevious()
             if player_url_node is not None:
-                player_url = "https://www.fantasypros.com%s" % player_url_node.get("href").replace("players", "news")
-                player_url = player_url[:player_url.find("?")]
+                player_url = "https://www.fantasypros.com%s" % player_url_node.get("href")
                 html = requests.get(player_url).text
                 player_node = lxml.html.document_fromstring(html)
                 self.get_player_notes(player_node)
@@ -34,6 +33,8 @@ class FantasyProsParser:
             if self.player_column == 0:
                 self.current_player["pos"] = "".join([char for char in node.text if not char.isdigit()])
                 self.current_player["name_pos"] = "%s (%s)" % (self.current_player["name"], self.current_player["pos"])
+            elif self.player_column == 1:
+                self.current_player["team_bye"] = node.text if node.text else None
             elif self.player_column == 4:
                 self.current_player["avg_rank"] = float(node.text) if node.text else None
             elif self.player_column == 6:
@@ -45,13 +46,12 @@ class FantasyProsParser:
     def get_player_notes(self, node):
         if self.current_player["notes"]:
             return
-        if node.tag == "div":
-            if node.get("class") == "well notes":
-                self.in_notes = True
-            if self.in_notes and node.get("class") == "clearfix":
-                self.current_player["notes"] = node.tail.strip()
-                self.in_notes = False
-                return
+        if node.tag == "div" and node.get("class") == "content" and not self.current_player["notes"]:
+            self.in_notes = True
+        if self.in_notes and node.tag == "p" and node.text:
+            self.current_player["notes"] = node.text
+            self.in_notes = False
+            return
         for child_node in node:
             self.get_player_notes(child_node)
 
