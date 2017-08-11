@@ -34,7 +34,7 @@ class FantasyProsParser:
                 self.current_player["pos"] = "".join([char for char in node.text if not char.isdigit()])
                 self.current_player["name_pos"] = "%s (%s)" % (self.current_player["name"], self.current_player["pos"])
             elif self.player_column == 1:
-                self.current_player["team_bye"] = node.text if node.text else None
+                self.current_player["team_bye"] = ("BYE %s" % node.text) if node.text else None
             elif self.player_column == 4:
                 self.current_player["avg_rank"] = float(node.text) if node.text else None
             elif self.player_column == 6:
