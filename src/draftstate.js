@@ -385,6 +385,7 @@ function select_player(player_id, simulation) {
             $("#filter_player_list").val("all");
             $("#player_search").val("");
             initialize();
+            serialize_state();
         }
     }
 }
@@ -423,8 +424,44 @@ function auto_draft() {
     initialize();
 }
 
+function serialize_state() {
+    var state = {"num_teams": $("#num_teams").val(),
+                 "draft_pos": $("#draft_pos").val(),
+                 "scoring_format": $("#scoring_format").val(),
+                 "num_wr": $("#num_wr").val(),
+                 "num_rb": $("#num_rb").val(),
+                 "num_wr_rb_te": $("#num_wr_rb_te").val(),
+                 "your_team_index": your_team_index,
+                 "players": players,
+                 "teams": teams,
+                 "curr_round": curr_round,
+                 "curr_team": curr_team,
+                 "max_round": max_round,
+                 "step": step};
+    localStorage.setItem("draft_assistant_state", JSON.stringify(state));
+}
+
+function restore_state() {
+    var state = JSON.parse(localStorage.getItem("draft_assistant_state"));
+    $("#num_teams").val(state["num_teams"]);
+    $("#draft_pos").val(state["draft_pos"]);
+    $("#scoring_format").val(state["scoring_format"]);
+    $("#num_wr").val(state["num_wr"]);
+    $("#num_rb").val(state["num_rb"]);
+    $("#num_wr_rb_te").val(state["num_wr_rb_te"]);
+    your_team_index = state["your_team_index"];
+    players = state["players"];
+    teams = state["teams"];
+    curr_round = state["curr_round"];
+    curr_team = state["curr_team"];
+    max_round = state["max_round"];
+    step = state["step"];
+    initialize();
+    $(".show_on_load").show();
+}
+
 $(document).ready(function(){
-    $(".show_on_load").hide()
+    $(".show_on_load").hide();
     numbers_dropdown("num_teams", 4, 16, 12);
     numbers_dropdown("draft_pos", 1, 12, 1);
     $("#num_teams").change(function(){
@@ -445,9 +482,12 @@ $(document).ready(function(){
                 max_round = parseInt($("#num_wr").val()) + parseInt($("#num_rb").val()) + parseInt($("#num_wr_rb_te").val()) + 10
                 step = 1;
                 initialize();
-                $(".show_on_load").show()
+                $(".show_on_load").show();
             }
         });
+    });
+    $("#restore_state").click(function(){
+        restore_state();
     });
     $("#filter_player_list").change(function(){
         initialize();
