@@ -26,6 +26,7 @@ class FantasyProsParser:
             player_url_node = node.getprevious().getprevious()
             if player_url_node is not None:
                 player_url = "https://www.fantasypros.com%s" % player_url_node.get("href")
+                self.current_player["player_url"] = player_url
                 html = requests.get(player_url).text
                 player_node = lxml.html.document_fromstring(html)
                 self.get_player_notes(player_node)

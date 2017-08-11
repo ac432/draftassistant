@@ -358,7 +358,8 @@ function load_suggestions() {
         suggestions_html += "<td><span class=\"undrafted_player\" onclick=\"select_player(" + best_picks[i]["player_id"] + ", false)\">" + 
             players[best_picks[i]["player_id"]]["name_pos"] + "</span>";
         if (players[best_picks[i]["player_id"]]["notes"] != "") {
-            suggestions_html += "<a href=\"#\" title=\"" + players[best_picks[i]["player_id"]]["notes"] + "\">Notes</a>";
+            suggestions_html += "<a href=\"#\" title=\"" + players[best_picks[i]["player_id"]]["notes"] + "\">Notes</a>&nbsp;";
+            suggestions_html += "<a href=\"" + players[best_picks[i]["player_id"]]["player_url"] + "\" target=\"_blank\">More Info</a>";
         }
         suggestions_html += "</td></tr>";
     }
